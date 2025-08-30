@@ -9,8 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import leftImageSrc from "../../../assets/left-side-login.png";
 import { useMobileDetect } from "@/common/hooks/useMobileDetect";
 import { LoginFormValues, loginSchema } from "../schemas/login-page.schema";
-import { replace, useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/auth/auth.store";
+import { useAuthContext } from "@/components/providers/auth-provider/AuthProvider";
+import {
+  getUserInformationDispatch,
+  loginDispatch,
+} from "@/api/dispatchs/auth/auth.dispatchs";
 
 export type UseLoginPageControllerReturn = {
   isMobile: boolean;
@@ -26,8 +29,6 @@ export type UseLoginPageControllerReturn = {
 export const useLoginPageController = (): UseLoginPageControllerReturn => {
   const isMobile = useMobileDetect();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
 
   const {
     register,
@@ -42,11 +43,18 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
     setShowPassword((v) => !v);
   }, []);
 
+  const { setLoged } = useAuthContext();
   const submitHandler = useCallback(async (data: LoginFormValues) => {
-    console.log(data);
-    await new Promise((r) => setTimeout(r, 1000));
-    setAuthenticated(true);
-    navigate("/notifications", { replace: true });
+    try {
+      console.log(data);
+      await new Promise((r) => setTimeout(r, 1000));
+      await loginDispatch(data.email, data.password);
+      const user = await getUserInformationDispatch();
+      console.log(user);
+      await setLoged(user);
+    } catch (error) {
+      alert("Login failed, try again.");
+    }
   }, []);
 
   const onSubmit = useMemo(

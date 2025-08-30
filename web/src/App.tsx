@@ -1,4 +1,3 @@
-// src/App.tsx
 import { GlobalWrapper } from "@components/wrappers/global-wrapper/GlobalWrapper";
 import { Sidebar } from "@components/sidebar/Sidebar";
 import { RouterWrapper } from "@components/wrappers/router-wrapper/RouterWrapper";
@@ -19,7 +18,9 @@ export const App = () => {
             <Sidebar />
             <Header />
           </Fragment>
-        ) : null}
+        ) : (
+          <></>
+        )}
 
         <RouterWrapper>
           <Router />

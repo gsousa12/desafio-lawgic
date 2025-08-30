@@ -1,4 +1,3 @@
-// src/components/router/Router.tsx
 import { Route, Routes, Navigate } from "react-router-dom";
 import { NotFoundPage } from "../not-found-page/NotFoundPage";
 import { ProtectedRoute } from "../protected-route/ProtectedRoute";
