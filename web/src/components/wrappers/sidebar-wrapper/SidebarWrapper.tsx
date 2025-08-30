@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./SidebarWrapper.module.scss";
-import { useMobileDetect } from "../../../common/hooks/useMobileDetect";
+import { useMobileDetect } from "@common/hooks/useMobileDetect";
 
 interface SidebarWrapperProps {
   children: ReactNode;

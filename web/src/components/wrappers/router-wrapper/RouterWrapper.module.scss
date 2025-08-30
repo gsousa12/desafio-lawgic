@@ -1,0 +1,13 @@
+/* Equivalente a:
+   col-start-2 row-start-2 flex flex-col overflow-y-auto
+*/
+
+.routesWrapper {
+  grid-column-start: 2; /* col-start-2 */
+  grid-row-start: 2; /* row-start-2 */
+
+  display: flex; /* flex */
+  flex-direction: column; /* flex-col */
+
+  overflow-y: auto; /* overflow-y-auto */
+}

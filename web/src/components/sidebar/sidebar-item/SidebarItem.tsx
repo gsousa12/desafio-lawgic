@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { JSX } from "react";
-import { useMobileDetect } from "../../../common/hooks/useMobileDetect";
+import { useMobileDetect } from "@common/hooks/useMobileDetect";
 import styles from "./SidebarItem.module.scss";
 
 interface SidebarItemProps {

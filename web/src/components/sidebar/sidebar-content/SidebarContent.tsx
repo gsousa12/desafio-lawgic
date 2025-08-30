@@ -11,9 +11,9 @@ export const SidebarContent = () => {
       <SidebarItem
         icon={<Gavel />}
         label={"Notificação"}
-        routerLink={"/notification"}
+        routerLink={"/notifications"}
         active={
-          location.pathname === "/notification" || location.pathname === "/"
+          location.pathname === "/notifications" || location.pathname === "/"
         }
       />
       <SidebarItem

@@ -1,0 +1,13 @@
+$secondary-background: #141821;
+$radius-2xl: 1rem;
+$space-4: 1rem;
+
+.contentWrapper {
+  background-color: $secondary-background;
+  padding: $space-4;
+  flex: 1 1 auto;
+}
+
+.desktop {
+  border-radius: $radius-2xl;
+}

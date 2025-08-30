@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useMobileDetect } from "../../../common/hooks/useMobileDetect";
+import { useMobileDetect } from "@common/hooks/useMobileDetect";
 import styles from "./GlobalWrapper.module.scss";
 
 interface GlobalWrapperProps {

@@ -1,5 +1,5 @@
 import { ClipboardList } from "lucide-react";
-import { useMobileDetect } from "../../../common/hooks/useMobileDetect";
+import { useMobileDetect } from "@common/hooks/useMobileDetect";
 import styles from "./SidebarHeader.module.scss";
 
 export const SidebarHeader = () => {
