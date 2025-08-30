@@ -1,0 +1,33 @@
+$secondary-background: #141821;
+
+$transition-duration-100: 100ms;
+
+$space-3-5: 0.875rem;
+$width-15: 3.75rem;
+$width-25: 6.25rem;
+$radius-3xl: 1.5rem;
+
+.sidebarWrapper {
+  background-color: $secondary-background;
+  grid-row: span 2;
+  height: 100%;
+  overflow: auto;
+  z-index: 30;
+
+  transition-property: all;
+  transition-duration: $transition-duration-100;
+  transition-timing-function: linear;
+
+  padding-top: $space-3-5;
+  padding-bottom: $space-3-5;
+}
+
+.mobile {
+  width: $width-15;
+  border-radius: 0;
+}
+
+.desktop {
+  width: $width-25;
+  border-radius: $radius-3xl;
+}

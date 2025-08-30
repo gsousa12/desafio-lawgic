@@ -9,7 +9,7 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
 
   app.enableCors({
-    origin: '*',
+    origin: 'http://localhost:5173',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true,

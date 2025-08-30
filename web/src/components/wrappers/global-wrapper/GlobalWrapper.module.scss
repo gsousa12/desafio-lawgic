@@ -1,0 +1,24 @@
+$primary-background: #0f1115;
+$primary-font: #d4d4d8;
+
+.globalWrapper {
+  height: 100vh;
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+
+  background-color: $primary-background;
+  color: $primary-font;
+}
+
+.desktop {
+  padding: 1rem;
+  gap: 1.25rem;
+}
+
+.mobile {
+  padding: 0;
+  gap: 0.5rem;
+}

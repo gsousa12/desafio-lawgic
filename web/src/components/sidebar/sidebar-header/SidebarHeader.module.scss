@@ -1,0 +1,29 @@
+$primary-color: #6366f1;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.125rem;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  color: $primary-color;
+}
+
+.iconMobile {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: 0;
+}
+
+.iconDesktop {
+  width: 2rem;
+  height: 2rem;
+  margin-top: 0.5rem;
+}

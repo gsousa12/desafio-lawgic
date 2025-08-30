@@ -1,0 +1,16 @@
+$secondary-background: #141821;
+$space-4: 1rem;
+$radius-2xl: 1rem;
+
+.headerWrapper {
+  background-color: $secondary-background;
+  padding: $space-4;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.desktop {
+  border-radius: $radius-2xl;
+}

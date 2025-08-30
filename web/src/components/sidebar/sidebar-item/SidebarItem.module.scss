@@ -1,0 +1,63 @@
+$primary-color: #6366f1;
+$secondary-color: #3730a3;
+$text-color: inherit;
+
+.link {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+
+  &:hover .inactive {
+    background-color: $secondary-color;
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+
+  transition-property: color, background-color, border-color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+
+  color: inherit;
+}
+
+.active {
+  background-color: $primary-color;
+}
+
+.inactive {
+  background-color: transparent;
+}
+
+.iconBox {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  & :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.labelGap {
+  margin-top: 0.25rem;
+}

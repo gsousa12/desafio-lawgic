@@ -1,0 +1,40 @@
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(180deg, $primary-color, $secondary-color);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.05s ease, opacity 0.2s ease, filter 0.2s ease;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.fullWidth {
+  width: 100%;
+}

@@ -33,7 +33,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/logout')
+  @Post('/signout')
   @HttpCode(HttpStatus.OK)
   @ApiResponseMessage('Usuário deslogado com sucesso')
   async logout(@Res({ passthrough: true }) response: Response) {

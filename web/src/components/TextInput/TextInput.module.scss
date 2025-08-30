@@ -1,0 +1,74 @@
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 13px;
+  color: $primary-font;
+  margin-bottom: 6px;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  background: #0c0e12;
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  outline: none;
+  padding: 12px 40px 12px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: $secondary-font;
+  }
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+}
+
+.iconBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 6px;
+
+  &:hover {
+    color: #e5e7eb;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.errorText {
+  margin-top: 6px;
+  color: #fca5a5;
+  font-size: 12px;
+  line-height: 1.1;
+  min-height: 16px; // reserva espaço para não empurrar o input quando aparecer
+}

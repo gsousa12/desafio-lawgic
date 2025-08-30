@@ -1,0 +1,69 @@
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+.root {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: $primary-background;
+  color: $primary-font;
+}
+
+.left {
+  width: 40%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.right {
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: min(420px, 92vw);
+  background: $secondary-background;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: $secondary-font;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .left {
+    display: none;
+  }
+  .right {
+    width: 100%;
+  }
+}
