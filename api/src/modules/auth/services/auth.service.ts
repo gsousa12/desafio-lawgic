@@ -31,7 +31,7 @@ export class AuthService implements IAuthService {
       request.password,
       user.password,
     );
-    console.log(request.password, user.password, isValidPassword);
+
     if (!isValidPassword) {
       throw new ApiException('Credenciais inválidas', 404);
     }

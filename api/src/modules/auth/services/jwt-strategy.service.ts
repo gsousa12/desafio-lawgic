@@ -22,9 +22,6 @@ export class JwtStrategyService extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const jwtSecret = this.configService.get('jwtSecret', { infer: true });
-    console.log('JWT Secret:', jwtSecret);
-    console.log('Payload JWT:', payload);
     return payload;
   }
 }

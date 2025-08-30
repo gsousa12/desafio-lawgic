@@ -46,11 +46,8 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
   const { setLoged } = useAuthContext();
   const submitHandler = useCallback(async (data: LoginFormValues) => {
     try {
-      console.log(data);
-      await new Promise((r) => setTimeout(r, 1000));
       await loginDispatch(data.email, data.password);
       const user = await getUserInformationDispatch();
-      console.log(user);
       await setLoged(user);
     } catch (error) {
       alert("Login failed, try again.");
