@@ -24,4 +24,11 @@ export class AuthController {
   ): Promise<void> {
     return await this.authService.signIn(request, response);
   }
+
+  @Post('/logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseMessage('Usuário deslogado com sucesso')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    return await this.authService.logout(response);
+  }
 }
