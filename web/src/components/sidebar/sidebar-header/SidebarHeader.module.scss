@@ -1,0 +1,37 @@
+/* Valores mapeados do Tailwind: 
+   - mb-4.5 não é padrão; ajuste conforme seu scale (assumi 1.125rem = 18px).
+   - h-7/w-7 = 1.75rem; h-8/w-8 = 2rem; mt-0 = 0; mt-2 = 0.5rem.
+*/
+
+$space-4-5: 1.125rem; // mb-4.5 (ajuste caso sua escala seja outra)
+$indigo-500: #6366f1; // Tailwind Indigo 500 (ajuste para seu tema)
+
+.container {
+  display: flex; /* flex */
+  align-items: center; /* items-center */
+  justify-content: center; /* justify-center */
+  margin-bottom: $space-4-5; /* mb-4.5 */
+}
+
+.iconContainer {
+  display: flex; /* flex */
+  align-items: center; /* items-center */
+}
+
+/* Cor base do ícone */
+.icon {
+  color: $indigo-500; /* text-indigo-500 */
+}
+
+/* Estados por device */
+.iconMobile {
+  width: 1.75rem; /* w-7 */
+  height: 1.75rem; /* h-7 */
+  margin-top: 0; /* mt-0 */
+}
+
+.iconDesktop {
+  width: 2rem; /* w-8 */
+  height: 2rem; /* h-8 */
+  margin-top: 0.5rem; /* mt-2 */
+}

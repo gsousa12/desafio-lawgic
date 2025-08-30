@@ -1,0 +1,80 @@
+/* index.scss — Reset + base */
+
+/* 1) Box sizing consistente */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2) Remover margens/paddings padrões e garantir altura total */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* 3) Tipografia base (opcional) */
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+}
+
+/* 4) Remover estilos de elementos comuns (opcional, bem leve) */
+body {
+  margin: 0; /* assegura remover a margin default */
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  background: transparent;
+}
+
+/* 5) Remover sublinhado azul em links ao focar nos navegadores móveis (opcional) */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 6) Imagens e mídia responsivas por padrão (opcional) */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  max-width: 100%;
+}
+
+/* 7) Remover estilos de listas (opcional) */
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 8) Inputs/buttons consistentes (opcional) */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* 9) Evitar scroll horizontal por overflow acidental (opcional) */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* 10) Raiz do app ocupando toda a viewport */
+#root {
+  min-height: 100vh;
+}

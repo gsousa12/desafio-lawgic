@@ -1,0 +1,40 @@
+/* Substitua por tokens/variáveis reais do seu tema se tiver */
+$bg-dark-300: #141821; // exemplo de bg-dark-300
+
+/* Duração em ms do Tailwind duration-100 = 100ms */
+$transition-duration-100: 100ms;
+
+/* Em Tailwind, py-3.5 = 0.875rem (14px), w-15/w-25 são custom, ajuste conforme seu scale */
+$space-3-5: 0.875rem; // py-3.5
+$width-15: 3.75rem; // exemplo para w-15 (60px) — ajuste ao seu design
+$width-25: 6.25rem; // exemplo para w-25 (100px) — ajuste ao seu design
+$radius-3xl: 1.5rem; // rounded-3xl (24px) — ajuste conforme sua escala
+
+.sidebarWrapper {
+  background-color: $bg-dark-300; /* bg-dark-300 */
+  grid-row: span 2; /* row-span-2 */
+  height: 100%; /* h-full */
+  overflow: auto; /* overflow-auto */
+  z-index: 30; /* z-30 */
+
+  /* transition-all duration-100 ease-linear */
+  transition-property: all;
+  transition-duration: $transition-duration-100;
+  transition-timing-function: linear;
+
+  /* py-3.5 */
+  padding-top: $space-3-5;
+  padding-bottom: $space-3-5;
+}
+
+/* Estado para mobile: w-15 */
+.mobile {
+  width: $width-15;
+  border-radius: 0; /* sem rounded */
+}
+
+/* Estado para desktop: rounded-3xl w-25 */
+.desktop {
+  width: $width-25;
+  border-radius: $radius-3xl;
+}

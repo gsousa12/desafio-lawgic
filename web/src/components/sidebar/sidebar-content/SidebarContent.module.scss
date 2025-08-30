@@ -1,0 +1,7 @@
+/* flex flex-col gap-2 mt-3 */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* gap-2 */
+  margin-top: 0.75rem; /* mt-3 */
+}
