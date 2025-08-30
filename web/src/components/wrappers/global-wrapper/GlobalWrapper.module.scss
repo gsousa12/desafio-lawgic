@@ -1,25 +1,24 @@
-/* Substitua pelos tokens/variáveis reais do seu tema */
-$bg-dark-500: #0f1115; // exemplo para bg-dark-500
-$text-zinc-300: #d4d4d8; // exemplo para text-zinc-300
+$primary-background: #0f1115;
+$primary-font: #d4d4d8;
 
 .globalWrapper {
-  height: 100vh; /* h-screen */
-  overflow: hidden; /* overflow-hidden */
+  height: 100vh;
+  overflow: hidden;
 
-  display: grid; /* grid */
-  grid-template-columns: auto 1fr; /* grid-cols-[auto_1fr] */
-  grid-template-rows: auto 1fr; /* grid-rows-[auto_1fr] */
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
 
-  background-color: $bg-dark-500; /* bg-dark-500 */
-  color: $text-zinc-300; /* text-zinc-300 */
+  background-color: $primary-background;
+  color: $primary-font;
 }
 
 .desktop {
-  padding: 1rem; /* p-4 */
-  gap: 1.25rem; /* gap-5 (20px) */
+  padding: 1rem;
+  gap: 1.25rem;
 }
 
 .mobile {
-  padding: 0; /* p-0 */
-  gap: 0.5rem; /* gap-2 (8px) */
+  padding: 0;
+  gap: 0.5rem;
 }

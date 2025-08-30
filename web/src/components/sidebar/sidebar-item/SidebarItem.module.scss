@@ -1,54 +1,44 @@
-/* Variáveis opcionais para cores e tempos (ajuste conforme seu tema) */
-$indigo-600: #4f46e5; /* Tailwind indigo-600 */
-$indigo-800: #3730a3; /* Tailwind indigo-800 */
+$primary-color: #6366f1;
+$secondary-color: #3730a3;
 $text-color: inherit;
 
-/* group flex w-full justify-center py-1 */
 .link {
   display: flex;
   width: 100%;
   justify-content: center;
-  padding-top: 0.25rem; /* py-1 */
+  padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 
-  /* Precisamos de um "group" para hover no filho.
-     Em CSS Modules, simulamos isso com &:hover afetando .item.inactive */
   &:hover .inactive {
-    background-color: $indigo-800; /* group-hover:bg-indigo-800 */
+    background-color: $secondary-color;
   }
 }
 
-/* 
-  flex flex-col items-center rounded-lg px-3 py-2 w-full mx-2
-  transition-colors duration-200 ease-in-out
-*/
 .item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-radius: 0.5rem; /* rounded-lg */
-  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
   width: 100%;
-  margin-left: 0.5rem; /* mx-2 */
+  margin-left: 0.5rem;
   margin-right: 0.5rem;
 
   transition-property: color, background-color, border-color, fill, stroke;
-  transition-duration: 200ms; /* duration-200 */
-  transition-timing-function: ease-in-out; /* ease-in-out */
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
 
-  color: $text-color;
+  color: inherit;
 }
 
-/* Estados de background */
 .active {
-  background-color: $indigo-600; /* bg-indigo-600 */
+  background-color: $primary-color;
 }
 
 .inactive {
-  background-color: transparent; /* bg-transparent */
+  background-color: transparent;
 }
 
-/* w-6 h-6 para o container do ícone */
 .iconBox {
   width: 1.5rem;
   height: 1.5rem;
@@ -56,21 +46,18 @@ $text-color: inherit;
   align-items: center;
   justify-content: center;
 
-  /* Se quiser herdar a cor do texto para o ícone SVG */
   & :global(svg) {
     width: 100%;
     height: 100%;
   }
 }
 
-/* text-xs font-medium text-center e controle do espaçamento condicional */
 .label {
-  font-size: 0.75rem; /* text-xs */
-  font-weight: 500; /* font-medium */
-  text-align: center; /* text-center */
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
 }
 
-/* mt-1 (apenas quando não é mobile) */
 .labelGap {
-  margin-top: 0.25rem; /* mt-1 */
+  margin-top: 0.25rem;
 }
