@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { IAuthService } from './interfaces/auth-service.interface';
 import { SignInRequestDTO } from '../dtos/request/sign-in.dto';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRepository } from '../repositories/auth.repository';
 import { AUTH_REPOSITORY } from 'src/common/tokens/injection.tokens';
 import { ApiException } from 'src/common/exceptions/api.exection';
@@ -9,6 +9,9 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'src/common/types/api/api.types';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from 'src/common/config/configurations';
+import * as bcrypt from 'bcrypt';
+import { UserEntity } from 'src/common/types/entities';
+import { SignUpRequestDTO } from '../dtos/request/sign-up.dto';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -24,7 +27,11 @@ export class AuthService implements IAuthService {
       throw new ApiException('Usuário não encontrado', 404);
     }
 
-    const isValidPassword = user.password === request.password;
+    const isValidPassword = await bcrypt.compare(
+      request.password,
+      user.password,
+    );
+    console.log(request.password, user.password, isValidPassword);
     if (!isValidPassword) {
       throw new ApiException('Credenciais inválidas', 404);
     }
@@ -48,6 +55,34 @@ export class AuthService implements IAuthService {
       sameSite: isProductionEnvironment ? 'none' : 'lax',
       maxAge: Number(3600000),
     });
+  }
+
+  async signUp(request: SignUpRequestDTO): Promise<Partial<UserEntity>> {
+    const user = await this.authRepository.getByEmail(request.email);
+
+    if (user) {
+      throw new ApiException(
+        'Já existe um usuário cadastrado com esse email',
+        409,
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(request.password, 10);
+
+    const createdUser = await this.authRepository.createAdminUser(
+      request,
+      hashedPassword,
+    );
+
+    const response = {
+      id: createdUser.id,
+      name: createdUser.name,
+      email: createdUser.email,
+      role: createdUser.role,
+      createdAt: createdUser.createdAt,
+    };
+
+    return response;
   }
 
   async logout(res: Response): Promise<void> {

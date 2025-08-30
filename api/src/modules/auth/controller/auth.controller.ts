@@ -17,6 +17,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { JwtPayload } from 'src/common/types/api/api.types';
+import { SignUpRequestDTO } from '../dtos/request/sign-up.dto';
+import { UserEntity } from 'src/common/types/entities';
 
 @Controller('auth')
 export class AuthController {
@@ -29,22 +31,32 @@ export class AuthController {
     @Body() request: SignInRequestDTO,
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
-    return await this.authService.signIn(request, response);
+    await this.authService.signIn(request, response);
+  }
+
+  @Post('/signup')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiResponseMessage('Usuário admin criado com sucesso')
+  async signUp(
+    @Body() request: SignUpRequestDTO,
+  ): Promise<Partial<UserEntity>> {
+    const result = await this.authService.signUp(request);
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('/signout')
   @HttpCode(HttpStatus.OK)
   @ApiResponseMessage('Usuário deslogado com sucesso')
-  async logout(@Res({ passthrough: true }) response: Response) {
-    return await this.authService.logout(response);
+  async logout(@Res({ passthrough: true }) response: Response): Promise<void> {
+    await this.authService.logout(response);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/me')
   @HttpCode(HttpStatus.OK)
   @ApiResponseMessage('Informações do usuário retornadas com sucesso')
-  async getUserInfo(@User() user: JwtPayload) {
+  async getUserInfo(@User() user: JwtPayload): Promise<JwtPayload> {
     return user;
   }
 }
