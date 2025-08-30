@@ -6,9 +6,11 @@ import { Router } from "@components/router/Router";
 import { Fragment } from "react/jsx-runtime";
 import { Route, Routes } from "react-router-dom";
 import { LoginPage } from "./features/auth/pages/LoginPage";
+import { useAuthStore } from "./stores/auth/auth.store";
 
 export const App = () => {
-  const isAuthenticated = false;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  alert(isAuthenticated);
   return (
     <GlobalWrapper>
       {isAuthenticated ? (

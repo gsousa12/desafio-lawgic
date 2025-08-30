@@ -10,6 +10,7 @@ import leftImageSrc from "../../../assets/left-side-login.png";
 import { useMobileDetect } from "@/common/hooks/useMobileDetect";
 import { LoginFormValues, loginSchema } from "../schemas/login-page.schema";
 import { replace, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/auth/auth.store";
 
 export type UseLoginPageControllerReturn = {
   isMobile: boolean;
@@ -26,6 +27,7 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
   const isMobile = useMobileDetect();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const navigate = useNavigate();
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
 
   const {
     register,
@@ -43,6 +45,7 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
   const submitHandler = useCallback(async (data: LoginFormValues) => {
     console.log(data);
     await new Promise((r) => setTimeout(r, 1000));
+    setAuthenticated(true);
     navigate("/notifications", { replace: true });
   }, []);
 
