@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { IAuthService } from './interfaces/auth-service.interface';
 import { SignInRequestDTO } from '../dtos/request/sign-in.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthRepository } from '../repositories/auth.repository';
 import { AUTH_REPOSITORY } from 'src/common/tokens/injection.tokens';
 import { ApiException } from 'src/common/exceptions/api.exection';
