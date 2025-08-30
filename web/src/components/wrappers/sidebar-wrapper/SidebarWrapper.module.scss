@@ -1,4 +1,4 @@
-$primary-background: #0f1115;
+$secondary-background: #141821;
 
 $transition-duration-100: 100ms;
 
@@ -8,7 +8,7 @@ $width-25: 6.25rem;
 $radius-3xl: 1.5rem;
 
 .sidebarWrapper {
-  background-color: $primary-background;
+  background-color: $secondary-background;
   grid-row: span 2;
   height: 100%;
   overflow: auto;
