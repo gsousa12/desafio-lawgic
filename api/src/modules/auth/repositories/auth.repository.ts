@@ -3,6 +3,7 @@ import { IAuthRepository } from './interfaces/auth-repository.interface';
 import { PrismaService } from 'src/database/modules/service/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { SignUpRequestDTO } from '../dtos/request/sign-up.dto';
+import { UserRole } from 'src/common/utils/enums';
 
 @Injectable()
 export class AuthRepository implements IAuthRepository {
@@ -23,7 +24,7 @@ export class AuthRepository implements IAuthRepository {
         name: data.name,
         email: data.email,
         password: hashedPassword,
-        role: 'admin',
+        role: UserRole.Admin,
       },
     });
   }

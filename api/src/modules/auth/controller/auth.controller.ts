@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -13,7 +12,6 @@ import { AuthService } from '../services/auth.service';
 import { SignInRequestDTO } from '../dtos/request/sign-in.dto';
 import { Request, Response } from 'express';
 import { ApiResponseMessage } from 'src/common/decorators/api-response-mensage.decorator';
-import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { User } from 'src/common/decorators/user.decorator';
 import { JwtPayload } from 'src/common/types/api/api.types';

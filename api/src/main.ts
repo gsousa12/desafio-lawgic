@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ApiExceptionFilter } from './common/filters/exceptions.filter';
 import { ApiResponseInterceptor } from './common/interceptors/api-response.interceptor';
 import * as cookieParser from 'cookie-parser';
+import { SingleErrorPipe } from './common/pipes/single-error.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,12 @@ async function bootstrap() {
     exposedHeaders: ['Content-Disposition'],
   });
 
+  app.useGlobalPipes(
+    new SingleErrorPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   app.setGlobalPrefix('api');
   app.useGlobalInterceptors(new ApiResponseInterceptor(reflector));
   app.useGlobalFilters(new ApiExceptionFilter());
