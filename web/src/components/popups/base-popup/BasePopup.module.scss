@@ -1,0 +1,81 @@
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(0.5px);
+  -webkit-backdrop-filter: blur(0.5px);
+
+  padding: 1rem;
+}
+
+.popup {
+  width: var(--popup-w, 840px);
+  height: var(--popup-h, 620px);
+  max-width: 95vw;
+  max-height: 92vh;
+
+  background: $secondary-background;
+  color: $primary-font;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.03) inset;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  transform: translateY(6px) scale(0.98);
+  opacity: 0;
+  animation: popup-in 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes popup-in {
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $primary-font;
+}
+
+.content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popup {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

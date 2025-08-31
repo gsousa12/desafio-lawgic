@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useForm,
   type FieldErrors,
@@ -11,11 +11,14 @@ import { useMobileDetect } from "@/common/hooks/useMobileDetect";
 import { LoginFormValues, loginSchema } from "../schemas/login-page.schema";
 import { useAuthContext } from "@/components/providers/auth-provider/AuthProvider";
 import {
-  getUserInformationDispatch,
-  loginDispatch,
-} from "@/api/dispatchs/auth/auth.dispatchs";
+  ApiErrorResponseType,
+  useApiMutation,
+  useApiQuery,
+} from "@/api/dispatchs/hooks";
+import { api } from "@/api/axios";
+import { JwtPayload } from "@/common/types/api/api.types";
 
-export type UseLoginPageControllerReturn = {
+interface UseLoginPageControllerReturn {
   isMobile: boolean;
   leftImageSrc: string;
   register: UseFormRegister<LoginFormValues>;
@@ -24,9 +27,15 @@ export type UseLoginPageControllerReturn = {
   isSubmitting: boolean;
   showPassword: boolean;
   togglePasswordVisibility: () => void;
-};
+  isPending: boolean;
+  isError: boolean;
+  error: ApiErrorResponseType | null;
+  openAlertPopUp: boolean;
+  setOpenAlertPopUp: (value: boolean) => void;
+}
 
 export const useLoginPageController = (): UseLoginPageControllerReturn => {
+  const [openAlertPopUp, setOpenAlertPopUp] = useState<boolean>(false);
   const isMobile = useMobileDetect();
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -43,21 +52,52 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
     setShowPassword((v) => !v);
   }, []);
 
+  const {
+    mutateAsync: loginDispatch,
+    isPending: loginIsPeding,
+    isError: loginIsError,
+    error: loginError,
+  } = useApiMutation<null, LoginFormValues>((loginData) =>
+    api.post("/auth/signin/", loginData)
+  );
+
+  const {
+    isError: getUserInfoIsError,
+    error: getUserInfoError,
+    refetch: useGetUserInformationFetch,
+  } = useApiQuery<JwtPayload>(["jwt", null], () => api.get(`/auth/me/`), {
+    enabled: false,
+  });
+
   const { setLoged } = useAuthContext();
-  const submitHandler = useCallback(async (data: LoginFormValues) => {
-    try {
-      await loginDispatch(data.email, data.password);
-      const user = await getUserInformationDispatch();
-      await setLoged(user);
-    } catch (error) {
-      alert("Login failed, try again.");
-    }
-  }, []);
+  const submitHandler = useCallback(
+    async (data: LoginFormValues) => {
+      try {
+        await loginDispatch(data);
+        const result = await useGetUserInformationFetch();
+        if (result.data?.data !== undefined) {
+          const user = result.data.singleItem;
+          await setLoged(user!);
+        } else {
+          setOpenAlertPopUp(true);
+        }
+      } catch (error) {
+        setOpenAlertPopUp(true);
+      }
+    },
+    [loginDispatch, useGetUserInformationFetch, setLoged]
+  );
 
   const onSubmit = useMemo(
     () => handleSubmit(submitHandler),
     [handleSubmit, submitHandler]
   );
+
+  useEffect(() => {
+    if (loginError) {
+      setOpenAlertPopUp(true);
+    }
+  }, [loginError]);
 
   return {
     isMobile,
@@ -68,5 +108,10 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
     isSubmitting,
     showPassword,
     togglePasswordVisibility,
+    isPending: loginIsPeding,
+    isError: loginIsError || getUserInfoIsError,
+    error: loginError || getUserInfoError,
+    openAlertPopUp,
+    setOpenAlertPopUp,
   };
 };
