@@ -7,6 +7,8 @@ import { Button } from "@/components/Button/Button";
 import { Pagination } from "@/components/pagination/Pagination";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
 import { CircleX } from "lucide-react";
+import { useState } from "react";
+import { BasePopup } from "@/components/popups/base-popup/BasePopup";
 
 export const NotificationsPage = () => {
   const {
@@ -21,7 +23,10 @@ export const NotificationsPage = () => {
     handleRefetchPage,
   } = useNotificationPageController();
 
-  const handleCreateNotification = () => {};
+  const [openCreatePopup, setOpenCreatePopup] = useState(false);
+  const handleCreateNotification = () => {
+    setOpenCreatePopup(true);
+  };
 
   console.log(isError);
 
@@ -44,6 +49,13 @@ export const NotificationsPage = () => {
           onConfirm={() => handleRefetchPage()}
         />
       )}
+      <BasePopup
+        open={openCreatePopup}
+        title="Criar Notificação"
+        onClose={() => setOpenCreatePopup(false)}
+      >
+        <></>
+      </BasePopup>
     </ContentWrapper>
   );
 };
