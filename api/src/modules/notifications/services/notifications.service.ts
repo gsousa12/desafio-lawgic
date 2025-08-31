@@ -18,14 +18,14 @@ export class NotificationsService implements INotificationsServiceInterface {
   async create(
     request: CreateNotificationRequestDTO,
     userId: string,
-  ): Promise<void> {
+  ): Promise<any> {
     const notification = await this.notificationsRepository.getByTitle(
       request.title,
     );
     if (notification) {
       throw new ApiException('Já existe uma notificação com esse título', 409);
     }
-    await this.notificationsRepository.create(request, userId);
+    return await this.notificationsRepository.create(request, userId);
   }
 
   async createNotifiedPerson(

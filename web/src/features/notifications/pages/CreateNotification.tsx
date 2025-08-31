@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import axios from "axios";
 import {
   useForm,
@@ -8,19 +8,21 @@ import {
   type Resolver,
 } from "react-hook-form";
 import { z } from "zod";
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { Search } from "lucide-react";
 import styles from "./CreateNotification.module.scss";
-import { api } from "@/api/axios";
 
 /* =========================================================
    AXIOS (withCredentials para cookie HttpOnly)
    ========================================================= */
-// const http = axios.create({
-//   baseURL: "http://localhost:3000/api",
-//   withCredentials: true,
-// });
+const http = axios.create({
+  baseURL: "http://localhost:3000/api",
+  withCredentials: true,
+});
 
 /* =========================================================
-   TYPES — Dynamic schema
+   Tipos para schemas dinâmicos
    ========================================================= */
 type FieldType = "text" | "textarea" | "email" | "date" | "radio";
 
@@ -41,21 +43,27 @@ type FormSchemaResponse = {
   fields: FormField[];
 };
 
+type ApiEnvelope<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
 /* =========================================================
-   TYPES — Controller
+   Tipos do fluxo
    ========================================================= */
 export type Step1FormValues = {
   title?: string;
   description?: string;
-  hearingDate?: string; // ISO-Z no submit
+  hearingDate?: string; // datetime-local string em tela; convertemos p/ ISO-Z no submit
 };
 
 export type Step2FormValues = {
   name?: string;
   email?: string;
-  phone?: string;
-  cep?: string;
-  state?: string;
+  phone?: string; // com máscara em tela; converter p/ dígitos no submit
+  cep?: string; // validar 8 dígitos
+  state?: string; // forçar uppercase
   city?: string;
   neighborhood?: string;
   street?: string;
@@ -64,42 +72,19 @@ export type Step2FormValues = {
 type Loading = {
   step1: boolean;
   step2: boolean;
+  cepLookup: boolean;
 };
 
-type SchemaState = {
-  schema: FormSchemaResponse | null;
-  loading: boolean;
-  error: string | null;
-};
-
-export type CreateNotificationController = {
-  step: 1 | 2;
-  goNext: () => void;
-  goPrev: () => void;
-  goToStep: (s: 1 | 2) => void;
-
-  loading: Loading;
-  finished: boolean;
-
-  step1Locked: boolean;
-  canGoNext: boolean;
-
-  createdNotificationId?: string;
-  step1Data?: Step1FormValues;
-  step2Data?: Step2FormValues;
-
-  schemas: {
-    step1: SchemaState;
-    step2: SchemaState;
-  };
-
-  createNotification: (payload: Record<string, any>) => Promise<void>;
-  assignPerson: (payload: Record<string, any>) => Promise<void>;
+type Schemas = {
+  step1?: FormSchemaResponse;
+  step2?: FormSchemaResponse;
 };
 
 /* =========================================================
-   HELPERS (arrow functions ONLY)
+   Utils de data/strings
    ========================================================= */
+const onlyDigits = (s: string) => s.replace(/\D+/g, "");
+
 const toIsoZFromLocal = (input: string): string => {
   if (!input) return input;
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(input)) return `${input}:00.000Z`;
@@ -117,16 +102,40 @@ const fromIsoZToLocalInput = (iso?: string): string => {
   return m ? m[1] : "";
 };
 
-type ApiEnvelope<T> = {
-  success: boolean;
-  message: string;
-  data: T;
+const maskPhone = (value: string): string => {
+  const d = onlyDigits(value).slice(0, 11);
+  if (d.length <= 10) {
+    // (XX) XXXX-XXXX
+    return d
+      .replace(/^(\d{0,2})(\d{0,4})(\d{0,4}).*/, (_m, a, b, c) =>
+        [
+          a && `(${a}`,
+          a && a.length === 2 ? ")" : "",
+          b && ` ${b}`,
+          c && `-${c}`,
+        ]
+          .filter(Boolean)
+          .join("")
+      )
+      .trim();
+  }
+  // 11 dígitos → (XX) XXXXX-XXXX
+  return d
+    .replace(/^(\d{0,2})(\d{0,5})(\d{0,4}).*/, (_m, a, b, c) =>
+      [a && `(${a}`, a && a.length === 2 ? ")" : "", b && ` ${b}`, c && `-${c}`]
+        .filter(Boolean)
+        .join("")
+    )
+    .trim();
 };
 
+/* =========================================================
+   API helpers
+   ========================================================= */
 const fetchSchema = async (
   stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON"
 ): Promise<FormSchemaResponse> => {
-  const res = await api.get<ApiEnvelope<FormSchemaResponse>>(
+  const res = await http.get<ApiEnvelope<FormSchemaResponse>>(
     `/forms/${stepKey}`
   );
   return res.data.data;
@@ -134,189 +143,252 @@ const fetchSchema = async (
 
 const apiCreateNotification = async (
   payload: Record<string, any>
-): Promise<{ id: string; status: string }> => {
-  const { data } = await api.post<{ id: string; status: string }>(
-    "/notifications",
-    payload
-  );
-  return data;
+): Promise<any> => {
+  const res = await http.post(`/notifications`, payload);
+  const data = (res.data?.data ?? res.data) as any;
+  console.log(`data from apiCreateNotification:`, data);
+  return res;
 };
 
 const apiCreateNotifiedPerson = async (payload: Record<string, any>) => {
-  const { data } = await api.post("/notifications/person", payload);
-  alert("envio");
-  return data;
+  const res = await http.post(`/notifications/person`, payload);
+  return res.data?.data ?? res.data;
+};
+
+type BrasilApiCep = {
+  cep: string;
+  state: string;
+  city: string;
+  neighborhood: string;
+  street: string;
+  service: string;
+};
+
+const lookupCepApi = async (cep: string): Promise<BrasilApiCep> => {
+  const clean = onlyDigits(cep);
+  const resp = await fetch(`https://brasilapi.com.br/api/cep/v1/${clean}`);
+  if (!resp.ok) {
+    throw new Error("CEP não encontrado");
+  }
+  return (await resp.json()) as BrasilApiCep;
 };
 
 /* =========================================================
-   CONTROLLER (hook) — toda a lógica aqui
+   Zustand Store (persist em localStorage)
    ========================================================= */
-export const useCreateNotificationController =
-  (): CreateNotificationController => {
-    const [step, setStep] = useState<1 | 2>(1);
-    const [loading, setLoading] = useState<Loading>({
-      step1: false,
-      step2: false,
-    });
-    const [finished, setFinished] = useState(false);
+type CreateNotificationStore = {
+  step: 1 | 2;
+  notificationId?: string;
 
-    const [createdNotificationId, setCreatedNotificationId] = useState<
-      string | undefined
-    >(undefined);
-    const [step1Data, setStep1Data] = useState<Step1FormValues | undefined>(
-      undefined
-    );
-    const [step2Data, setStep2Data] = useState<Step2FormValues | undefined>(
-      undefined
-    );
+  // Drafts
+  step1Data: Step1FormValues | null;
+  step2Data: Step2FormValues | null;
 
-    const [schemaStep1, setSchemaStep1] = useState<SchemaState>({
-      schema: null,
-      loading: false,
-      error: null,
-    });
-    const [schemaStep2, setSchemaStep2] = useState<SchemaState>({
-      schema: null,
-      loading: false,
-      error: null,
-    });
+  schemas: Schemas;
+  loading: Loading;
+  finished: boolean;
 
-    const step1Locked = useMemo(
-      () => Boolean(createdNotificationId),
-      [createdNotificationId]
-    );
-    const canGoNext = step1Locked;
+  // Actions
+  setStep: (s: 1 | 2) => void;
+  resetAll: () => void;
 
-    const goNext = useCallback(() => {
-      if (step === 1 && canGoNext) setStep(2);
-    }, [step, canGoNext]);
+  loadSchema: (
+    stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON"
+  ) => Promise<void>;
 
-    const goPrev = useCallback(() => {
-      if (step === 2) setStep(1);
-    }, [step]);
+  setStep1Data: (partial: Partial<Step1FormValues>) => void;
+  setStep2Data: (partial: Partial<Step2FormValues>) => void;
 
-    const goToStep = useCallback(
-      (s: 1 | 2) => {
-        if (s === 1) return setStep(1);
-        if (s === 2 && canGoNext) return setStep(2);
-      },
-      [canGoNext]
-    );
+  createNotification: (payload: Record<string, any>) => Promise<void>;
+  assignPerson: (payload: Record<string, any>) => Promise<void>;
 
-    useEffect(() => {
-      let active = true;
-      (async () => {
+  lookupCep: (cep: string) => Promise<BrasilApiCep>;
+};
+
+export const useCreateNotificationStore = create<CreateNotificationStore>()(
+  persist(
+    (set, get) => ({
+      step: 1,
+      notificationId: undefined,
+      step1Data: null,
+      step2Data: null,
+      schemas: {},
+      loading: { step1: false, step2: false, cepLookup: false },
+      finished: false,
+
+      setStep: (s) => set({ step: s }),
+
+      resetAll: () =>
+        set({
+          step: 1,
+          notificationId: undefined,
+          step1Data: null,
+          step2Data: null,
+          schemas: {},
+          loading: { step1: false, step2: false, cepLookup: false },
+          finished: false,
+        }),
+
+      loadSchema: async (stepKey) => {
+        const key = stepKey === "CREATE_NOTIFICATION" ? "step1" : "step2";
+        const existing = get().schemas[key as keyof Schemas];
+        if (existing) return;
         try {
-          setSchemaStep1((prev) => ({ ...prev, loading: true, error: null }));
-          const schema = await fetchSchema("CREATE_NOTIFICATION");
-          if (!active) return;
-          setSchemaStep1({ schema, loading: false, error: null });
+          const schema = await fetchSchema(stepKey);
+          set((s) => ({
+            schemas: {
+              ...s.schemas,
+              [key]: schema,
+            },
+          }));
         } catch {
-          if (!active) return;
-          setSchemaStep1({
-            schema: null,
-            loading: false,
-            error: "Falha ao carregar formulário de criação.",
-          });
+          // opcional: armazenar um erro
         }
-      })();
-      return () => {
-        active = false;
-      };
-    }, []);
+      },
 
-    const ensureStep2Schema = useCallback(async () => {
-      if (schemaStep2.schema || schemaStep2.loading) return;
-      try {
-        setSchemaStep2((prev) => ({ ...prev, loading: true, error: null }));
-        const schema = await fetchSchema("CREATE_NOTIFIED_PERSON");
-        setSchemaStep2({ schema, loading: false, error: null });
-      } catch {
-        setSchemaStep2({
-          schema: null,
-          loading: false,
-          error: "Falha ao carregar formulário da pessoa.",
-        });
-      }
-    }, [schemaStep2.schema, schemaStep2.loading]);
+      setStep1Data: (partial) =>
+        set((s) => ({ step1Data: { ...(s.step1Data ?? {}), ...partial } })),
 
-    const createNotification = useCallback(
-      async (payload: Record<string, any>) => {
-        if (!schemaStep1.schema) return;
+      setStep2Data: (partial) =>
+        set((s) => ({ step2Data: { ...(s.step2Data ?? {}), ...partial } })),
 
-        const fields = schemaStep1.schema.fields;
+      createNotification: async (payload) => {
+        const schema = get().schemas.step1;
+        if (!schema) return;
+
         const prepared: Record<string, any> = { ...payload };
-        for (const f of fields) {
+        for (const f of schema.fields) {
           if (f.type === "date" && prepared[f.id]) {
             prepared[f.id] = toIsoZFromLocal(String(prepared[f.id]));
           }
         }
 
-        setLoading((l) => ({ ...l, step1: true }));
+        set((s) => ({ loading: { ...s.loading, step1: true } }));
         try {
           const res = await apiCreateNotification(prepared);
-          setStep1Data(prepared as Step1FormValues);
-          setCreatedNotificationId(res.id);
-          setStep(2);
-          await ensureStep2Schema();
+          const notificationId = res.data.data.id;
+          if (!notificationId)
+            throw new Error("Id da notificação não retornado");
+          set({
+            notificationId: res.id,
+            step1Data: prepared as Step1FormValues,
+            step: 2,
+          });
+          await get().loadSchema("CREATE_NOTIFIED_PERSON");
         } finally {
-          setLoading((l) => ({ ...l, step1: false }));
+          set((s) => ({ loading: { ...s.loading, step1: false } }));
         }
       },
-      [schemaStep1.schema, ensureStep2Schema]
-    );
 
-    const assignPerson = useCallback(
-      async (payload: Record<string, any>) => {
-        if (!createdNotificationId) return;
-        alert("aq");
-        setLoading((l) => ({ ...l, step2: true }));
+      assignPerson: async (payload) => {
+        const { notificationId } = get();
+        if (!notificationId) return;
+
+        const prepared: Record<string, any> = { ...payload };
+        if (prepared.cep) prepared.cep = onlyDigits(String(prepared.cep));
+        if (prepared.phone) prepared.phone = onlyDigits(String(prepared.phone));
+        if (prepared.state)
+          prepared.state = String(prepared.state).toUpperCase();
+
+        set((s) => ({ loading: { ...s.loading, step2: true } }));
         try {
-          const body = { notificationId: createdNotificationId, ...payload };
+          const body = { notificationId, ...prepared };
           await apiCreateNotifiedPerson(body);
-          setStep2Data(payload as Step2FormValues);
-          setFinished(true);
+          set({
+            step2Data: prepared as Step2FormValues,
+            finished: true,
+          });
         } finally {
-          setLoading((l) => ({ ...l, step2: false }));
+          set((s) => ({ loading: { ...s.loading, step2: false } }));
         }
       },
-      [createdNotificationId]
-    );
 
-    return {
-      step,
-      goNext,
-      goPrev,
-      goToStep,
-      loading,
-      finished,
-      step1Locked,
-      canGoNext,
-      createdNotificationId,
-      step1Data,
-      step2Data,
-      schemas: {
-        step1: schemaStep1,
-        step2: schemaStep2,
+      lookupCep: async (cep) => {
+        set((s) => ({ loading: { ...s.loading, cepLookup: true } }));
+        try {
+          const data = await lookupCepApi(cep);
+          return data;
+        } finally {
+          set((s) => ({ loading: { ...s.loading, cepLookup: false } }));
+        }
       },
-      createNotification,
-      assignPerson,
-    };
-  };
+    }),
+    {
+      name: "create-notification-store",
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
 
 /* =========================================================
-   UI HELPERS — validação dinâmica com Zod (v4 classic friendly)
+   Validação dinâmica com Zod (Zod v4 classic friendly)
    ========================================================= */
 type ZodShape = Record<string, z.ZodTypeAny>;
 
+const HEARING_DATE_FIELD_ID = "hearingDate";
+
 const makeZodSchema = (fields?: FormField[]): z.ZodObject<ZodShape> => {
+  const shape: Record<string, z.ZodTypeAny> = {};
+
   if (!Array.isArray(fields) || fields.length === 0) {
     return z.object({}) as unknown as z.ZodObject<ZodShape>;
   }
 
-  const shape: Record<string, z.ZodTypeAny> = {};
-
   for (const f of fields) {
+    // Base string para text/textarea/email/date
+    let str = z.string();
+
+    if (f.format === "email" || f.type === "email") {
+      str = str.email("E-mail inválido");
+    }
+
+    // Fallback maxLength = 100 se backend não enviar
+    const maxLen = typeof f.maxLength === "number" ? f.maxLength : 100;
+    if (typeof f.minLength === "number") {
+      str = str.min(f.minLength, `Mínimo de ${f.minLength} caracteres`);
+    }
+    if (maxLen > 0) {
+      str = str.max(maxLen, `Máximo de ${maxLen} caracteres`);
+    }
+    if (f.required) {
+      str = str.min(1, "Campo obrigatório");
+    }
+
+    // Regras custom por id
+    if (f.id === "cep") {
+      // valida 8 dígitos (sem alterar o valor do campo)
+      str = str.refine((v) => /^\d{8}$/.test(onlyDigits(v)), {
+        message: "CEP deve conter 8 dígitos",
+      });
+    }
+    if (f.id === "state") {
+      // 2 letras; forçamos uppercase via UI/onChange; aqui só validamos
+      str = str.refine((v) => /^[A-Za-z]{2}$/.test(v), {
+        message: "UF deve ter 2 letras",
+      });
+    }
+    if (f.id === "phone") {
+      // permite vazio quando não required; valida 10–11 dígitos quando preenchido
+      str = str.refine(
+        (v) => v === "" || [10, 11].includes(onlyDigits(v).length),
+        { message: "Telefone deve ter 10 ou 11 dígitos" }
+      );
+    }
+    if (f.id === HEARING_DATE_FIELD_ID) {
+      // precisa ser futuro
+      str = str.refine(
+        (v) => {
+          if (!v) return false;
+          const iso = toIsoZFromLocal(v);
+          const dt = new Date(iso);
+          if (Number.isNaN(dt.getTime())) return false;
+          return dt.getTime() > Date.now();
+        },
+        { message: "A data deve ser no futuro" }
+      );
+    }
+
     if (
       f.type === "radio" &&
       Array.isArray(f.options) &&
@@ -337,42 +409,11 @@ const makeZodSchema = (fields?: FormField[]): z.ZodObject<ZodShape> => {
       continue;
     }
 
-    let str = z.string();
-    if (f.format === "email" || f.type === "email")
-      str = str.email("E-mail inválido");
-    if (typeof f.minLength === "number")
-      str = str.min(f.minLength, `Mínimo de ${f.minLength} caracteres`);
-    if (typeof f.maxLength === "number")
-      str = str.max(f.maxLength, `Máximo de ${f.maxLength} caracteres`);
-    if (f.required) str = str.min(1, "Campo obrigatório");
-
+    // RHF usa "" para vazio — permita "" quando não required
     shape[f.id] = f.required ? str : z.union([str, z.literal("")]);
   }
 
   return z.object(shape as ZodShape) as unknown as z.ZodObject<ZodShape>;
-};
-
-const makeDefaultValues = (fields?: FormField[]) => {
-  const defaults: Record<string, any> = {};
-  if (!Array.isArray(fields)) return defaults;
-  for (const f of fields) defaults[f.id] = "";
-  return defaults;
-};
-
-const normalizeDefaultsForFields = (
-  fields: FormField[],
-  incoming?: Record<string, any>
-) => {
-  if (!incoming) return undefined;
-  const out: Record<string, any> = { ...incoming };
-  for (const f of fields) {
-    const v = out[f.id];
-    if (v == null) continue;
-    if (f.type === "date" && typeof v === "string")
-      out[f.id] = fromIsoZToLocalInput(v);
-    else if (f.type === "radio") out[f.id] = String(v);
-  }
-  return out;
 };
 
 /* =========================================================
@@ -389,7 +430,6 @@ const makeRHFZodResolver =
     for (const issue of parsed.error.issues) {
       const name = issue.path.join(".");
       if (!name) continue;
-      // guarda apenas a primeira mensagem por campo
       if (!errs[name]) {
         errs[name] = {
           type: issue.code || "validation",
@@ -401,9 +441,10 @@ const makeRHFZodResolver =
   };
 
 /* =========================================================
-   DynamicForm — apenas apresentação (RHF + Zod via resolver custom)
+   DynamicForm — RHF + CEP lookup + máscaras
    ========================================================= */
 type DynamicFormProps = {
+  stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON";
   fields?: FormField[];
   locked?: boolean;
   submitLabel: string;
@@ -411,9 +452,11 @@ type DynamicFormProps = {
   defaultValues?: Record<string, any>;
   onSubmit: (values: Record<string, any>) => void | Promise<void>;
   onBack?: () => void;
+  onCancel?: () => void;
 };
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
+  stepKey,
   fields,
   locked,
   submitLabel,
@@ -421,59 +464,203 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   defaultValues,
   onSubmit,
   onBack,
+  onCancel,
 }) => {
   const safeFields = useMemo<FormField[]>(
     () => (Array.isArray(fields) ? fields : []),
     [fields]
   );
 
-  const schema = useMemo<z.ZodObject<ZodShape>>(
-    () => makeZodSchema(safeFields),
-    [safeFields]
-  );
-
+  const schema = useMemo(() => makeZodSchema(safeFields), [safeFields]);
   const resolver = useMemo(() => makeRHFZodResolver(schema), [schema]);
 
   const computedDefaults = useMemo(() => {
-    const base = makeDefaultValues(safeFields);
-    const normalized = normalizeDefaultsForFields(safeFields, defaultValues);
-    return { ...base, ...(normalized ?? {}) };
+    const base: Record<string, any> = {};
+    for (const f of safeFields) base[f.id] = "";
+    if (defaultValues) {
+      // normaliza defaults (datas, UF, phone, radio)
+      for (const f of safeFields) {
+        const v = (defaultValues as any)[f.id];
+        if (v == null) continue;
+        if (f.type === "date" && typeof v === "string")
+          base[f.id] = fromIsoZToLocalInput(v);
+        else if (f.id === "state" && typeof v === "string")
+          base[f.id] = v.toUpperCase();
+        else if (f.id === "phone" && typeof v === "string")
+          base[f.id] = maskPhone(v);
+        else if (f.type === "radio") base[f.id] = String(v);
+        else base[f.id] = v;
+      }
+    }
+    return base;
   }, [safeFields, defaultValues]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    getValues,
+    setError,
+    clearErrors,
+    reset,
   } = useForm<FieldValues>({
     resolver,
     defaultValues: computedDefaults,
     mode: "onBlur",
   });
 
+  // Reseta o formulário quando defaultValues mudarem (ex.: ao voltar para step 1 bloqueado)
+  useEffect(() => {
+    reset(computedDefaults);
+  }, [computedDefaults, reset]);
+
+  const cepLookupLoading = useCreateNotificationStore(
+    (s) => s.loading.cepLookup
+  );
+  const doCepLookup = useCreateNotificationStore((s) => s.lookupCep);
+  const setStep2Data = useCreateNotificationStore((s) => s.setStep2Data);
+
+  // CEP lookup click
+  const handleCepLookup = useCallback(async () => {
+    const rawCep = String(getValues("cep") ?? "");
+    const clean = onlyDigits(rawCep);
+    if (clean.length !== 8) {
+      setError("cep", { type: "manual", message: "CEP deve conter 8 dígitos" });
+      return;
+    }
+    clearErrors("cep");
+    try {
+      const data = await doCepLookup(clean);
+      // sobrescreve sempre os campos de endereço
+      const nextState = String(data.state || "").toUpperCase();
+      setValue("state", nextState, { shouldValidate: true, shouldDirty: true });
+      setValue("city", data.city || "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue("neighborhood", data.neighborhood || "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue("street", data.street || "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      // sincroniza store draft step2
+      setStep2Data({
+        state: nextState,
+        city: data.city || "",
+        neighborhood: data.neighborhood || "",
+        street: data.street || "",
+      });
+    } catch (e: any) {
+      setError("cep", {
+        type: "manual",
+        message: e?.message || "Falha ao buscar CEP",
+      });
+    }
+  }, [doCepLookup, getValues, setError, clearErrors, setValue, setStep2Data]);
+
+  // Handlers com máscara/normalização preservando RHF onChange
   const renderField = (f: FormField, errs: FieldErrors<FieldValues>) => {
+    const reg = register(f.id);
     const commonProps = {
       id: f.id,
+      name: reg.name,
+      ref: reg.ref,
       "aria-invalid": !!errs[f.id],
-      disabled: locked,
+      disabled: locked || loading,
       readOnly: locked,
       className: f.type === "textarea" ? styles.textarea : styles.input,
       placeholder: f.label,
-      ...register(f.id),
-    };
+    } as const;
+
+    if (f.id === "cep") {
+      return (
+        <div className={styles.inputGroup}>
+          <input
+            type="text"
+            onChange={(e) => reg.onChange(e)}
+            defaultValue={computedDefaults[f.id] ?? ""}
+            {...commonProps}
+          />
+          <button
+            type="button"
+            className={styles.iconBtn}
+            onClick={handleCepLookup}
+            disabled={locked || !!loading || cepLookupLoading}
+            title="Buscar CEP"
+            aria-label="Buscar CEP"
+          >
+            <Search />
+          </button>
+        </div>
+      );
+    }
+
+    if (f.id === "state") {
+      return (
+        <input
+          type="text"
+          maxLength={2}
+          onChange={(e) => {
+            const val = e.target.value.toUpperCase().slice(0, 2);
+            setValue("state", val, { shouldValidate: true, shouldDirty: true });
+            reg.onChange({ ...e, target: { ...e.target, value: val } });
+          }}
+          defaultValue={computedDefaults[f.id] ?? ""}
+          {...commonProps}
+        />
+      );
+    }
+
+    if (f.id === "phone") {
+      return (
+        <input
+          type="tel"
+          onChange={(e) => {
+            const masked = maskPhone(e.target.value);
+            setValue("phone", masked, {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+            reg.onChange({ ...e, target: { ...e.target, value: masked } });
+          }}
+          defaultValue={computedDefaults[f.id] ?? ""}
+          {...commonProps}
+        />
+      );
+    }
 
     switch (f.type) {
       case "textarea":
-        return <textarea {...(commonProps as any)} />;
+        return (
+          <textarea
+            onChange={(e) => reg.onChange(e)}
+            defaultValue={computedDefaults[f.id] ?? ""}
+            {...commonProps}
+          />
+        );
       case "email":
       case "text":
         return (
           <input
             type={f.type === "email" ? "email" : "text"}
-            {...(commonProps as any)}
+            onChange={(e) => reg.onChange(e)}
+            defaultValue={computedDefaults[f.id] ?? ""}
+            {...commonProps}
           />
         );
       case "date":
-        return <input type="datetime-local" {...(commonProps as any)} />;
+        return (
+          <input
+            type="datetime-local"
+            onChange={(e) => reg.onChange(e)}
+            defaultValue={computedDefaults[f.id] ?? ""}
+            {...commonProps}
+          />
+        );
       case "radio":
         return (
           <div className={styles.field}>
@@ -496,7 +683,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                       id={inputId}
                       type="radio"
                       value={val}
-                      disabled={locked}
+                      disabled={locked || !!loading}
                       {...register(f.id)}
                     />
                     <span>{opt.label}</span>
@@ -507,13 +694,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
           </div>
         );
       default:
-        return <input type="text" {...(commonProps as any)} />;
+        return (
+          <input
+            type="text"
+            onChange={(e) => reg.onChange(e)}
+            defaultValue={computedDefaults[f.id] ?? ""}
+            {...commonProps}
+          />
+        );
     }
   };
 
   const submit: SubmitHandler<FieldValues> = async (vals) => {
     await onSubmit({ ...vals });
   };
+
+  const showBack = stepKey === "CREATE_NOTIFIED_PERSON" && onBack;
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(submit)}>
@@ -538,12 +734,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       )}
 
       <div className={styles.actions}>
-        {onBack && (
+        {onCancel && (
+          <button
+            type="button"
+            className={styles.btn}
+            onClick={onCancel}
+            disabled={!!loading}
+          >
+            Cancelar
+          </button>
+        )}
+        {showBack && (
           <button
             type="button"
             className={styles.btn}
             onClick={onBack}
-            disabled={loading}
+            disabled={!!loading}
           >
             Voltar
           </button>
@@ -551,7 +757,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         <button
           type="submit"
           className={`${styles.btn} ${styles.btnPrimary}`}
-          disabled={loading || locked || safeFields.length === 0}
+          disabled={!!loading || locked || safeFields.length === 0}
         >
           {loading ? "Enviando..." : submitLabel}
         </button>
@@ -561,82 +767,151 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 };
 
 /* =========================================================
-   Página: CreateNotification — usa a controller
+   Componente principal
    ========================================================= */
-const CreateNotification: React.FC = () => {
-  const ctrl = useCreateNotificationController();
+type CreateNotificationProps = {
+  onClose?: () => void; // para fechar o popup
+};
+
+const CreateNotification: React.FC<CreateNotificationProps> = ({ onClose }) => {
+  const step = useCreateNotificationStore((s) => s.step);
+  const setStep = useCreateNotificationStore((s) => s.setStep);
+  const notificationId = useCreateNotificationStore((s) => s.notificationId);
+  const loading = useCreateNotificationStore((s) => s.loading);
+  const finished = useCreateNotificationStore((s) => s.finished);
+  const schemas = useCreateNotificationStore((s) => s.schemas);
+  const step1Data = useCreateNotificationStore((s) => s.step1Data);
+  const step2Data = useCreateNotificationStore((s) => s.step2Data);
+
+  const resetAll = useCreateNotificationStore((s) => s.resetAll);
+  const loadSchema = useCreateNotificationStore((s) => s.loadSchema);
+  const createNotification = useCreateNotificationStore(
+    (s) => s.createNotification
+  );
+  const assignPerson = useCreateNotificationStore((s) => s.assignPerson);
+  const setStep1Data = useCreateNotificationStore((s) => s.setStep1Data);
+  const setStep2Data = useCreateNotificationStore((s) => s.setStep2Data);
+
+  const step1Locked = Boolean(notificationId);
+  const canGoNext = step1Locked;
+
+  // Carrega schema do Step 1 ao montar
+  useEffect(() => {
+    loadSchema("CREATE_NOTIFICATION");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Se iniciar no step 2 e schema do step 2 não estiver carregado (persist), garanta o load
+  useEffect(() => {
+    if (step === 2 && !schemas.step2) {
+      loadSchema("CREATE_NOTIFIED_PERSON");
+    }
+  }, [step, schemas.step2, loadSchema]);
+
+  // Ao terminar com sucesso: fecha e reseta
+  useEffect(() => {
+    if (finished) {
+      onClose?.();
+      resetAll();
+    }
+  }, [finished, onClose, resetAll]);
+
+  const handleSubmitStep1 = useCallback(
+    async (payload: Record<string, any>) => {
+      setStep1Data(payload);
+      await createNotification(payload);
+    },
+    [createNotification, setStep1Data]
+  );
+
+  const handleSubmitStep2 = useCallback(
+    async (payload: Record<string, any>) => {
+      setStep2Data(payload);
+      await assignPerson(payload);
+      // finished effect cuidará de fechar e resetar
+    },
+    [assignPerson, setStep2Data]
+  );
+
+  const handleBack = useCallback(() => {
+    setStep(1);
+  }, [setStep]);
+
+  const handleCancel = useCallback(() => {
+    resetAll();
+    onClose?.();
+  }, [onClose, resetAll]);
+
+  const step1Schema = schemas.step1;
+  const step2Schema = schemas.step2;
 
   return (
     <div className={styles.container}>
+      {/* Stepper compacto */}
       <div className={styles.stepper}>
         <div
-          className={`${styles.step} ${ctrl.step === 1 ? styles.active : ""}`}
+          className={`${styles.step} ${step === 1 ? styles.active : ""}`}
           role="button"
           tabIndex={-1}
-          onClick={() => ctrl.goToStep(1)}
+          onClick={() => setStep(1)}
         >
           <span className={styles.stepNumber}>1</span>
           <span>Criação da Notificação</span>
         </div>
         <div
-          className={`${styles.step} ${ctrl.step === 2 ? styles.active : ""} ${
-            ctrl.canGoNext ? "" : styles.disabled
+          className={`${styles.step} ${step === 2 ? styles.active : ""} ${
+            canGoNext ? "" : styles.disabled
           }`}
           role="button"
           tabIndex={-1}
-          onClick={() => ctrl.goToStep(2)}
-          aria-disabled={!ctrl.canGoNext}
+          onClick={() => canGoNext && setStep(2)}
+          aria-disabled={!canGoNext}
         >
           <span className={styles.stepNumber}>2</span>
           <span>Atribuir Pessoa</span>
         </div>
       </div>
 
+      {/* Conteúdo por step */}
       <div className={styles.content}>
-        {ctrl.step === 1 && (
+        {step === 1 && (
           <>
-            {ctrl.schemas.step1.loading && (
+            {!step1Schema && (
               <p className={styles.helper}>Carregando formulário...</p>
             )}
-            {ctrl.schemas.step1.error && (
-              <p className={styles.error}>{ctrl.schemas.step1.error}</p>
-            )}
-            {ctrl.schemas.step1.schema && (
+            {step1Schema && (
               <DynamicForm
-                fields={ctrl.schemas.step1.schema?.fields}
-                locked={ctrl.step1Locked}
-                loading={ctrl.loading.step1}
+                stepKey="CREATE_NOTIFICATION"
+                fields={step1Schema.fields}
+                locked={step1Locked}
+                loading={loading.step1}
                 submitLabel="Criar e continuar"
-                defaultValues={ctrl.step1Data}
-                onSubmit={ctrl.createNotification}
+                defaultValues={step1Data ?? undefined}
+                onSubmit={handleSubmitStep1}
+                onCancel={handleCancel}
               />
             )}
           </>
         )}
 
-        {ctrl.step === 2 && (
+        {step === 2 && (
           <>
-            {ctrl.schemas.step2.loading && (
+            {!step2Schema && (
               <p className={styles.helper}>Carregando formulário...</p>
             )}
-            {ctrl.schemas.step2.error && (
-              <p className={styles.error}>{ctrl.schemas.step2.error}</p>
-            )}
-            {ctrl.schemas.step2.schema && (
+            {step2Schema && (
               <DynamicForm
-                fields={ctrl.schemas.step2.schema?.fields}
-                loading={ctrl.loading.step2}
+                stepKey="CREATE_NOTIFIED_PERSON"
+                fields={step2Schema.fields}
+                loading={loading.step2}
                 submitLabel="Concluir"
-                defaultValues={ctrl.step2Data}
-                onSubmit={ctrl.assignPerson}
-                onBack={ctrl.goPrev}
+                defaultValues={step2Data ?? undefined}
+                onSubmit={handleSubmitStep2}
+                onBack={handleBack}
+                onCancel={handleCancel}
               />
             )}
           </>
-        )}
-
-        {ctrl.finished && (
-          <p className={styles.helper}>Fluxo concluído com sucesso.</p>
         )}
       </div>
     </div>

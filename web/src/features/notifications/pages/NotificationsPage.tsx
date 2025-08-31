@@ -44,7 +44,7 @@ export const NotificationsPage = () => {
         title="Criar Notificação"
         onClose={() => setOpenCreatePopup(false)}
       >
-        <CreateNotification />
+        <CreateNotification onClose={() => setOpenCreatePopup(false)} />
       </BasePopup>
       {isFetching && <Loader />}
       {isError && (
