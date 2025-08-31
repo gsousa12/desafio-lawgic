@@ -1,0 +1,134 @@
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+.wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: transparent;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  color: $primary-font;
+  font-size: 0.95rem;
+}
+
+.thead th {
+  text-align: left;
+  font-weight: 600;
+  color: #b9bac6;
+  padding: 10px 14px;
+  position: sticky;
+  top: 0;
+  background: $secondary-background;
+  z-index: 1;
+}
+
+.tbody tr {
+  background: $secondary-background;
+  border-radius: 12px;
+}
+
+.tbody td {
+  padding: 12px 14px;
+  vertical-align: middle;
+}
+
+.tbody tr {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 8px 16px rgba(0, 0, 0, 0.24);
+}
+.tbody tr:hover {
+  outline: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.titleCell {
+  font-weight: 600;
+  color: $primary-font;
+}
+
+.personCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.personName {
+  color: $primary-font;
+}
+.personEmail {
+  color: #9ea0a8;
+  font-size: 0.9em;
+}
+.personExtra {
+  color: #9ea0a8;
+  font-size: 0.85em;
+}
+.muted {
+  color: $secondary-font;
+}
+
+.actionsCol {
+  width: 160px;
+}
+
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: #c9cad4;
+  cursor: pointer;
+
+  transition: background-color 160ms ease, color 160ms ease,
+    border-color 160ms ease, transform 120ms ease;
+
+  &:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: $primary-color;
+    border-color: rgba(99, 102, 241, 0.35);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+
+  & :global(svg) {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+  }
+}
+
+.danger {
+  &:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.35);
+  }
+}
+
+@media (max-width: 640px) {
+  .thead th,
+  .tbody td {
+    padding: 10px 10px;
+  }
+  .actionsCol {
+    width: 120px;
+  }
+}
