@@ -1,0 +1,25 @@
+meta {
+  name: Person
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/notifications/person
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "notificationId": "18fb9ced-9621-4740-87fe-8ff3949b70cd",
+    "name": "Maria Silva",
+    "email": "maria.silva@example.com",
+    "phone": "88981555205",
+    "cep": "12345678",
+    "state": "SP",
+    "city": "São Paulo",
+    "neighborhood": "Bairro Exemplo",
+    "street": "Rua Exemplo, 123"
+  }
+}

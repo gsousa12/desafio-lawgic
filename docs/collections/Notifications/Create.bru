@@ -1,0 +1,19 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/api/notifications/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Revisão de Orçam4ento Q4452",
+    "description": "Análise detalhada das projeções de despesas e receitas para o quarto trimestre de 2025.",
+    "hearingDate": "2025-10-20T13:00:00.000Z"
+  }
+}
