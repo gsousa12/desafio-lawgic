@@ -1,8 +1,10 @@
 import { useLoginPageController } from "../controllers/login-page.controller";
 import { TextInput } from "@/components/TextInput/TextInput";
 import { Button } from "@/components/Button/Button";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { CircleX, EyeIcon, EyeOffIcon, Trash2 } from "lucide-react";
 import styles from "./LoginPage.module.scss";
+import { Loader } from "@/components/loader/Loader";
+import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
 
 export const LoginPage = () => {
   const {
@@ -14,6 +16,11 @@ export const LoginPage = () => {
     isSubmitting,
     showPassword,
     togglePasswordVisibility,
+    isPending,
+    isError,
+    error,
+    openAlertPopUp,
+    setOpenAlertPopUp,
   } = useLoginPageController();
 
   return (
@@ -62,6 +69,19 @@ export const LoginPage = () => {
           </form>
         </div>
       </div>
+      {isPending && !isError && <Loader />}
+      {isError && !isPending && (
+        <AlertPopup
+          open={openAlertPopUp}
+          title="Erro ao efetuar login"
+          description={error?.message}
+          icon={<CircleX />}
+          confirmLabel="Ok"
+          onConfirm={() => {
+            setOpenAlertPopUp(false);
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -1,0 +1,44 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(0.5px);
+  -webkit-backdrop-filter: blur(0.5px);
+  pointer-events: all;
+}
+
+.loader {
+  width: 48px;
+  aspect-ratio: 1;
+  --c: #6366f1;
+
+  --_g: no-repeat radial-gradient(farthest-side, var(--c) 94%, #0000);
+  background: var(--_g) 0 0, var(--_g) 100% 0, var(--_g) 100% 100%,
+    var(--_g) 0 100%;
+  background-size: 40% 40%;
+
+  animation: l38 1.6s infinite cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: background-position;
+}
+
+@keyframes l38 {
+  0% {
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+  }
+  25% {
+    background-position: 100% 0, 100% 100%, 0 100%, 0 0;
+  }
+  50% {
+    background-position: 100% 100%, 0 100%, 0 0, 100% 0;
+  }
+  75% {
+    background-position: 0 100%, 0 0, 100% 0, 100% 100%;
+  }
+  100% {
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+  }
+}
