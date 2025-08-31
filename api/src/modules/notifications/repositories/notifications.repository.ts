@@ -1,0 +1,132 @@
+import { Injectable } from '@nestjs/common';
+import { INotificationsRepositoryInterface } from './interfaces/notifications-repository.interface';
+import { PrismaService } from 'src/database/modules/service/prisma.service';
+import { CreateNotificationRequestDTO } from '../dtos/request/create.dto';
+import { NotificationStatus, UserRole } from 'src/common/utils/enums';
+import { NotificationEntity } from 'src/common/types/entities';
+import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
+import { NotifiedPersonEntity } from 'src/common/types/entities/person.entity';
+import { Meta } from 'src/common/types/api/api.types';
+
+@Injectable()
+export class NotificationsRepository
+  implements INotificationsRepositoryInterface
+{
+  constructor(private readonly db: PrismaService) {}
+
+  async create(
+    request: CreateNotificationRequestDTO,
+    userId: string,
+  ): Promise<void> {
+    await this.db.notification.create({
+      data: {
+        authorId: userId,
+        title: request.title,
+        description: request.description,
+        hearingDate: request.hearingDate,
+        status: NotificationStatus.InProgress,
+      },
+    });
+  }
+
+  async createNotifiedPerson(
+    request: CreateNotifiedPersonRequestDTO,
+  ): Promise<void> {
+    return this.db.$transaction(async (prisma) => {
+      await prisma.notifiedPerson.create({
+        data: {
+          notificationId: request.notificationId,
+          name: request.name,
+          email: request.email,
+          phone: request.phone,
+          cep: request.cep,
+          state: request.state,
+          city: request.city,
+          neighborhood: request.neighborhood,
+          street: request.street,
+        },
+      });
+
+      await prisma.notification.update({
+        where: {
+          id: request.notificationId,
+        },
+        data: {
+          status: NotificationStatus.Validation,
+        },
+      });
+    });
+  }
+
+  async getByTitle(title: string): Promise<NotificationEntity | null> {
+    return this.db.notification.findFirst({
+      where: {
+        title,
+      },
+    });
+  }
+
+  getById(id: string): Promise<NotificationEntity | null> {
+    return this.db.notification.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async getPersonByNotificationId(
+    notificationId: string,
+  ): Promise<NotifiedPersonEntity | null> {
+    return this.db.notifiedPerson.findFirst({
+      where: {
+        notificationId,
+      },
+    });
+  }
+
+  async getAll(filters: {
+    userId: string;
+    userRole: string;
+    page: number;
+  }): Promise<{ data: NotificationEntity[]; meta: Meta }> {
+    const limit = 10;
+    const page = filters.page > 0 ? filters.page : 1;
+    const skip = (page - 1) * limit;
+
+    const whereClause: any = {
+      canceledAt: null,
+    };
+
+    if (filters.userRole === UserRole.Notifier) {
+      whereClause.authorId = filters.userId;
+    }
+
+    if (filters.userRole === UserRole.Reviewer) {
+      whereClause.reviewerId = filters.userId;
+    }
+
+    const [totalCount, notifications] = await this.db.$transaction([
+      this.db.notification.count({ where: whereClause }),
+      this.db.notification.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      meta: {
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        currentPage: page,
+        totalPages,
+      },
+      data: notifications,
+    };
+  }
+}
