@@ -1,7 +1,7 @@
 import { useLoginPageController } from "../controllers/login-page.controller";
 import { TextInput } from "@/components/TextInput/TextInput";
 import { Button } from "@/components/Button/Button";
-import { CircleX, EyeIcon, EyeOffIcon, Trash2 } from "lucide-react";
+import { CircleX, EyeIcon, EyeOffIcon } from "lucide-react";
 import styles from "./LoginPage.module.scss";
 import { Loader } from "@/components/loader/Loader";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";

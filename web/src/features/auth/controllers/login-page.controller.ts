@@ -62,7 +62,6 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
   );
 
   const {
-    isPending: getUserInfoIsPeding,
     isError: getUserInfoIsError,
     error: getUserInfoError,
     refetch: useGetUserInformationFetch,
@@ -109,7 +108,7 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
     isSubmitting,
     showPassword,
     togglePasswordVisibility,
-    isPending: loginIsPeding || getUserInfoIsPeding,
+    isPending: loginIsPeding,
     isError: loginIsError || getUserInfoIsError,
     error: loginError || getUserInfoError,
     openAlertPopUp,
