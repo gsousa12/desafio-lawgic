@@ -1,9 +1,9 @@
-export interface Meta {
-  total: number;
-  page: number;
-  limit: number;
+export type Meta = {
+  totalItems: number;
+  itemsPerPage: number;
+  currentPage: number;
   totalPages: number;
-}
+};
 
 export interface ApiResponse<T> {
   success: boolean;

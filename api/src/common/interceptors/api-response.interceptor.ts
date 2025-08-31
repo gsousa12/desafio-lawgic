@@ -81,11 +81,11 @@ export class ApiResponseInterceptor<T>
     }
 
     if (data && typeof data === 'object' && data.data && data.meta) {
+      response.meta = data.meta;
       response.data =
         Array.isArray(data.data) && data.data.length === 1
           ? data.data[0]
           : data.data;
-      response.meta = data.meta;
       return response;
     }
 

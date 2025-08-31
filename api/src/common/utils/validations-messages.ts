@@ -1,4 +1,4 @@
-import { ValidationArguments } from 'class-validator';
+import { isDate, isUUID, ValidationArguments } from 'class-validator';
 
 export const validationMessages = {
   isEmail: (args: ValidationArguments) =>
@@ -21,10 +21,19 @@ export const validationMessages = {
 
   isDefined: (args: ValidationArguments) =>
     `O campo ${args.property} é obrigatório e deve está presente no payload de request.`,
+
   taxId: (args: ValidationArguments) =>
     `O campo ${args.property} deve ser um CNPJ ou CPF válido`,
+
   isEnum: (args: ValidationArguments) =>
     `O campo ${args.property} deve ser um valor válido do enum`,
+
   isArray: (args: ValidationArguments) =>
     `O campo ${args.property} deve ser um array`,
+
+  isDate: (args: ValidationArguments) =>
+    `O campo ${args.property} deve ser uma data válida`,
+
+  isUUID: (args: ValidationArguments) =>
+    `O campo ${args.property} deve ser um id válido (UUID)`,
 };
