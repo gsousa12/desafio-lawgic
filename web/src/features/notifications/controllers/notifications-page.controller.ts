@@ -2,7 +2,7 @@ import { api } from "@/api/axios";
 import { useApiQuery } from "@/api/dispatchs/hooks";
 import { Meta } from "@/common/types/api/api.types";
 import { defaultMeta } from "@/common/utils/consts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface UseNotificationPageControllerReturn {
   notifications?: any[];
@@ -12,23 +12,25 @@ interface UseNotificationPageControllerReturn {
   error?: any;
   page: number;
   goToPage: (page: number) => void;
+  openAlertPopup: boolean;
+  setOpenAlertPopup: (value: boolean) => void;
+  handleRefetchPage: () => void;
 }
 
 export const useNotificationPageController =
   (): UseNotificationPageControllerReturn => {
     const [page, setPage] = useState(1);
+    const [openAlertPopup, setOpenAlertPopup] = useState<boolean>(false);
 
-    const { data, isError, isFetching, error } = useApiQuery<any>(
-      ["notifications", page],
-      async () => {
+    const { data, isError, isFetching, error, isRefetchError, refetch } =
+      useApiQuery<any>(["notifications", page], async () => {
         const result = await api.get(`/notifications`, {
           params: {
             page,
           },
         });
         return result;
-      }
-    );
+      });
 
     const meta: Meta = (data?.meta as Meta | undefined) ??
       defaultMeta ?? {
@@ -43,14 +45,27 @@ export const useNotificationPageController =
 
     const goToPage = (p: number) => setPage(clamp(p));
 
+    const handleRefetchPage = () => {
+      refetch();
+      setOpenAlertPopup(false);
+    };
+
+    useEffect(() => {
+      if (isError || isRefetchError) {
+        setOpenAlertPopup(true);
+      }
+    }, [data, isError, isRefetchError, refetch]);
+
     return {
       notifications: data?.data || [],
       meta,
       isFetching,
-      isError,
+      isError: isError || isRefetchError,
       error,
-
       page,
       goToPage,
+      openAlertPopup,
+      setOpenAlertPopup,
+      handleRefetchPage,
     };
   };

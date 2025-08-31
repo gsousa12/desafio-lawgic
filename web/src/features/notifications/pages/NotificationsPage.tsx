@@ -5,13 +5,25 @@ import { Loader } from "@/components/loader/Loader";
 import styles from "./NotificationsPage.module.scss";
 import { Button } from "@/components/Button/Button";
 import { Pagination } from "@/components/pagination/Pagination";
+import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
+import { CircleX } from "lucide-react";
 
 export const NotificationsPage = () => {
-  const { notifications, meta, isFetching, page, goToPage } =
-    useNotificationPageController();
+  const {
+    notifications,
+    meta,
+    isFetching,
+    isError,
+    error,
+    page,
+    goToPage,
+    openAlertPopup,
+    handleRefetchPage,
+  } = useNotificationPageController();
 
   const handleCreateNotification = () => {};
-  console.log(notifications);
+
+  console.log(isError);
 
   return (
     <ContentWrapper>
@@ -22,6 +34,16 @@ export const NotificationsPage = () => {
       <NotificationsTable data={notifications} />
       <Pagination meta={meta} page={page} onPageChange={goToPage} />
       {isFetching && <Loader />}
+      {isError && (
+        <AlertPopup
+          open={openAlertPopup}
+          title="Erro ao buscar listagem de notificações"
+          description={error?.message}
+          icon={<CircleX />}
+          confirmLabel="Ok"
+          onConfirm={() => handleRefetchPage()}
+        />
+      )}
     </ContentWrapper>
   );
 };

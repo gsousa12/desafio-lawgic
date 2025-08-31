@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./AlertPopup.module.scss";
+import { Button } from "@/components/Button/Button";
 
 type AlertPopupProps = {
   open: boolean;
@@ -45,24 +46,11 @@ export const AlertPopup = ({
             hasCancel ? styles.double : styles.single
           }`}
         >
-          {hasCancel && (
-            <button
-              type="button"
-              className={`${styles.btn} ${styles.btnCancel}`}
-              onClick={onCancel}
-            >
-              {cancelLabel}
-            </button>
-          )}
+          {hasCancel && <Button onClick={onCancel}>{cancelLabel}</Button>}
 
-          <button
-            type="button"
-            className={`${styles.btn} ${styles.btnConfirm}`}
-            onClick={onConfirm}
-            autoFocus
-          >
+          <Button type="button" fullWidth onClick={onConfirm} autoFocus>
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
