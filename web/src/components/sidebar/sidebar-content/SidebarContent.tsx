@@ -1,4 +1,4 @@
-import { Gavel, LayoutGrid, UsersRound } from "lucide-react";
+import { Gavel, UsersRound } from "lucide-react";
 import { SidebarItem } from "../sidebar-item/SidebarItem";
 import { useLocation } from "react-router-dom";
 import styles from "./SidebarContent.module.scss";
@@ -16,12 +16,12 @@ export const SidebarContent = () => {
           location.pathname === "/notifications" || location.pathname === "/"
         }
       />
-      {/* <SidebarItem
+      <SidebarItem
         icon={<UsersRound />}
         label={"Equipe"}
         routerLink={"/users"}
         active={location.pathname === "/users" || location.pathname === "/"}
-      /> */}
+      />
     </div>
   );
 };

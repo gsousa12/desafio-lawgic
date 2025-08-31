@@ -1,16 +1,16 @@
 export type Meta = {
-  total: number;
-  page: number;
-  limit: number;
+  totalItems: number;
+  itemsPerPage: number;
+  currentPage: number;
   totalPages: number;
 };
 
-export type ApiResponse<T> = {
+export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data?: T | T[];
   meta?: Meta;
-};
+}
 
 export type SingleItem<T> = T;
 export type MultipleItems<T> = T[];

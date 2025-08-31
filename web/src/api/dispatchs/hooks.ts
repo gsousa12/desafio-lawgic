@@ -13,7 +13,7 @@ export interface ProcessedApiResponse<T> {
   data: T[] | T;
   singleItem: T | null | undefined;
   message: string;
-  meta: Meta | {};
+  meta?: Meta;
   hasPagination: boolean;
   isArray: boolean;
 }
@@ -26,7 +26,6 @@ export type ApiErrorResponseType = {
 export const processSuccessResponse = <T>(
   response: ApiResponse<T>
 ): ProcessedApiResponse<T> => {
-  console.log(response);
   const isArray = Array.isArray(response.data) && response.data.length > 1;
   const hasPagination = response.meta;
 
@@ -36,7 +35,7 @@ export const processSuccessResponse = <T>(
       ? response.data[0] ?? null
       : response.data,
     message: response.message,
-    meta: response.meta || {},
+    meta: response.meta || undefined,
     hasPagination: Boolean(hasPagination),
     isArray,
   };
