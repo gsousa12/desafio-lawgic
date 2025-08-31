@@ -1,3 +1,4 @@
+// BasePopup.tsx
 import { ReactNode, useEffect } from "react";
 import { X } from "lucide-react";
 import styles from "./BasePopup.module.scss";
@@ -20,14 +21,17 @@ export const BasePopup = ({
   onClose,
   showCloseIcon = true,
 }: BasePopupProps) => {
-  if (!open) return null;
+  // Chame hooks sempre
   useEffect(() => {
+    if (!open) return;
     const original = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = original;
     };
-  }, []);
+  }, [open]);
+
+  if (!open) return null;
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true">
