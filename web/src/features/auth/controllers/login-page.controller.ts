@@ -18,7 +18,7 @@ import {
 import { api } from "@/api/axios";
 import { JwtPayload } from "@/common/types/api/api.types";
 
-export type UseLoginPageControllerReturn = {
+interface UseLoginPageControllerReturn {
   isMobile: boolean;
   leftImageSrc: string;
   register: UseFormRegister<LoginFormValues>;
@@ -32,7 +32,7 @@ export type UseLoginPageControllerReturn = {
   error: ApiErrorResponseType | null;
   openAlertPopUp: boolean;
   setOpenAlertPopUp: (value: boolean) => void;
-};
+}
 
 export const useLoginPageController = (): UseLoginPageControllerReturn => {
   const [openAlertPopUp, setOpenAlertPopUp] = useState<boolean>(false);

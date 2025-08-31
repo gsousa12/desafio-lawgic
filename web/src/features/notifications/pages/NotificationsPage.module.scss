@@ -1,0 +1,25 @@
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$secondary-background: #141821;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.title {
+  color: $primary-font;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+@media (max-width: 560px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

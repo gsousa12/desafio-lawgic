@@ -10,18 +10,18 @@ export const SidebarContent = () => {
     <div className={styles.container}>
       <SidebarItem
         icon={<Gavel />}
-        label={"Notificação"}
+        label={"Notificações"}
         routerLink={"/notifications"}
         active={
           location.pathname === "/notifications" || location.pathname === "/"
         }
       />
-      <SidebarItem
+      {/* <SidebarItem
         icon={<UsersRound />}
         label={"Equipe"}
         routerLink={"/users"}
         active={location.pathname === "/users" || location.pathname === "/"}
-      />
+      /> */}
     </div>
   );
 };
