@@ -6,9 +6,9 @@ import styles from "./NotificationsPage.module.scss";
 import { Button } from "@/components/Button/Button";
 import { Pagination } from "@/components/pagination/Pagination";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
-import { CircleX } from "lucide-react";
-import { useState } from "react";
+import { CircleX, RefreshCcw } from "lucide-react";
 import { BasePopup } from "@/components/popups/base-popup/BasePopup";
+import { CreateNotification } from "./CreateNotification";
 
 export const NotificationsPage = () => {
   const {
@@ -21,23 +21,31 @@ export const NotificationsPage = () => {
     goToPage,
     openAlertPopup,
     handleRefetchPage,
+    openCreatePopup,
+    setOpenCreatePopup,
+    handleCreateNotification,
   } = useNotificationPageController();
-
-  const [openCreatePopup, setOpenCreatePopup] = useState(false);
-  const handleCreateNotification = () => {
-    setOpenCreatePopup(true);
-  };
-
-  console.log(isError);
 
   return (
     <ContentWrapper>
       <header className={styles.header}>
         <h2 className={styles.title}>Listagem de Notificações</h2>
-        <Button onClick={handleCreateNotification}>Criar Notificação</Button>
+        <div className={styles.actions}>
+          <Button onClick={handleCreateNotification}>Criar Notificação</Button>
+          <Button onClick={() => handleRefetchPage()}>
+            <RefreshCcw />
+          </Button>
+        </div>
       </header>
       <NotificationsTable data={notifications} />
       <Pagination meta={meta} page={page} onPageChange={goToPage} />
+      <BasePopup
+        open={openCreatePopup}
+        title="Criar Notificação"
+        onClose={() => setOpenCreatePopup(false)}
+      >
+        <CreateNotification />
+      </BasePopup>
       {isFetching && <Loader />}
       {isError && (
         <AlertPopup
@@ -49,13 +57,6 @@ export const NotificationsPage = () => {
           onConfirm={() => handleRefetchPage()}
         />
       )}
-      <BasePopup
-        open={openCreatePopup}
-        title="Criar Notificação"
-        onClose={() => setOpenCreatePopup(false)}
-      >
-        <></>
-      </BasePopup>
     </ContentWrapper>
   );
 };

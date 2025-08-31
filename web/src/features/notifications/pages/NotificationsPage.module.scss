@@ -5,7 +5,7 @@ $secondary-background: #141821;
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   margin-bottom: 1rem;
 }
@@ -15,11 +15,29 @@ $secondary-background: #141821;
   font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.2;
+  margin: 0;
+  margin-right: auto;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.header > :not(:first-child) + :not(:first-child) {
+  margin-left: 8px;
 }
 
 @media (max-width: 560px) {
   .header {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
+  }
+
+  .actions {
+    justify-content: flex-end;
   }
 }
