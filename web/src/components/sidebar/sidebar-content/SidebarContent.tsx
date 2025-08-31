@@ -16,12 +16,12 @@ export const SidebarContent = () => {
           location.pathname === "/notifications" || location.pathname === "/"
         }
       />
-      <SidebarItem
+      {/* <SidebarItem
         icon={<UsersRound />}
         label={"Equipe"}
         routerLink={"/users"}
         active={location.pathname === "/users" || location.pathname === "/"}
-      />
+      /> */}
     </div>
   );
 };

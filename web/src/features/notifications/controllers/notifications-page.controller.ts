@@ -15,12 +15,20 @@ interface UseNotificationPageControllerReturn {
   openAlertPopup: boolean;
   setOpenAlertPopup: (value: boolean) => void;
   handleRefetchPage: () => void;
+  openCreatePopup: boolean;
+  setOpenCreatePopup: (value: boolean) => void;
+  handleCreateNotification: () => void;
 }
 
 export const useNotificationPageController =
   (): UseNotificationPageControllerReturn => {
     const [page, setPage] = useState(1);
     const [openAlertPopup, setOpenAlertPopup] = useState<boolean>(false);
+    const [openCreatePopup, setOpenCreatePopup] = useState(false);
+
+    const handleCreateNotification = () => {
+      setOpenCreatePopup(true);
+    };
 
     const { data, isError, isFetching, error, isRefetchError, refetch } =
       useApiQuery<any>(["notifications", page], async () => {
@@ -67,5 +75,8 @@ export const useNotificationPageController =
       openAlertPopup,
       setOpenAlertPopup,
       handleRefetchPage,
+      openCreatePopup,
+      setOpenCreatePopup,
+      handleCreateNotification,
     };
   };
