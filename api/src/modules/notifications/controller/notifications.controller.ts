@@ -12,9 +12,8 @@ import {
 import { ApiResponseMessage } from 'src/common/decorators/api-response-mensage.decorator';
 import { NotificationsService } from '../services/notifications.service';
 import { CreateNotificationRequestDTO } from '../dtos/request/create.dto';
-import { Request } from 'express';
 import { User } from 'src/common/decorators/user.decorator';
-import { JwtPayload } from 'src/common/types/api/api.types';
+import { JwtPayload, Meta } from 'src/common/types/api/api.types';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
 import { NotificationEntity } from 'src/common/types/entities';
@@ -47,12 +46,12 @@ export class NotificationsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @ApiResponseMessage('Lista de notificações retornada com sucesso')
   async getAll(
     @Query() request: { page: string },
     @User() user: JwtPayload,
-  ): Promise<any> {
+  ): Promise<{ data: NotificationEntity[]; meta: Meta }> {
     const userId = user.userId;
     const userRole = user.role;
     const parsedPage = parseInt(request.page, 10) || 1;

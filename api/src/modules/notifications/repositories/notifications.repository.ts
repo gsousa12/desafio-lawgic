@@ -109,6 +109,7 @@ export class NotificationsRepository
       this.db.notification.count({ where: whereClause }),
       this.db.notification.findMany({
         where: whereClause,
+        include: { notifiedPerson: true },
         skip,
         take: limit,
         orderBy: {
