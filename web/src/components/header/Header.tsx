@@ -2,6 +2,8 @@ import { HeaderWrapper } from "../wrappers/header-wrapper/HeaderWrapper";
 import { logoutDispatch } from "@/api/dispatchs/auth/auth.dispatchs";
 import { useAuthContext } from "../providers/auth-provider/AuthProvider";
 import { useAuthStore } from "@/stores/auth/auth.store";
+import { Button } from "../Button/Button";
+import { LogOut } from "lucide-react";
 
 export const Header = () => {
   const logout = useAuthContext().logout;
@@ -16,12 +18,13 @@ export const Header = () => {
   const user = useAuthStore((store) => store.user);
   const userName = user?.name;
   const userEmail = user?.email;
-  const userRole = user?.role;
   return (
     <HeaderWrapper>
-      <button onClick={handleLogout}>Logout</button>
+      Bem vindo: {userName} | {userEmail}
       <div>
-        Bem vindo {userName} {userEmail} {userRole}
+        <Button onClick={handleLogout}>
+          <LogOut />
+        </Button>
       </div>
     </HeaderWrapper>
   );

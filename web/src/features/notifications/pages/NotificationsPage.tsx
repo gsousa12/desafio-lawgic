@@ -7,8 +7,8 @@ import { Button } from "@/components/Button/Button";
 import { Pagination } from "@/components/pagination/Pagination";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
 import { CircleX, RefreshCcw } from "lucide-react";
-import { useState } from "react";
 import { BasePopup } from "@/components/popups/base-popup/BasePopup";
+import { CreateNotification } from "./CreateNotification";
 
 export const NotificationsPage = () => {
   const {
@@ -44,7 +44,7 @@ export const NotificationsPage = () => {
         title="Criar Notificação"
         onClose={() => setOpenCreatePopup(false)}
       >
-        <></>
+        <CreateNotification />
       </BasePopup>
       {isFetching && <Loader />}
       {isError && (
