@@ -1,0 +1,175 @@
+/* Paleta */
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+/* Contêiner compacto para uso dentro do popup */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: $primary-font;
+}
+
+/* Stepper compacto (2 passos por enquanto, mas extensível) */
+.stepper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.step {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #c9cad4;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepNumber {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #c9cad4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.active {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.15);
+  color: $primary-font;
+
+  .stepNumber {
+    background: $primary-color;
+    color: #fff;
+  }
+}
+
+.disabled {
+  opacity: 0.6;
+}
+
+/* Área do conteúdo */
+.content {
+  background: $secondary-background;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* Form básico */
+.form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #b9bac6;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  background: $primary-background;
+  color: $primary-font;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+
+  &:focus {
+    border-color: rgba(99, 102, 241, 0.45);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  &:disabled,
+  &[readonly] {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Botões */
+.btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: #c9cad4;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 160ms ease, color 160ms ease,
+    transform 120ms ease;
+
+  &:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: $primary-color;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btnPrimary {
+  background: $primary-color;
+  color: #fff;
+
+  &:hover {
+    background: #5457ee;
+    color: #fff;
+  }
+}
+
+.helper {
+  font-size: 0.8rem;
+  color: $secondary-font;
+}
+
+/* Erros do RHF/Zod */
+.error {
+  color: #fca5a5;
+  font-size: 0.8rem;
+}
