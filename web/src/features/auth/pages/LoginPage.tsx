@@ -5,7 +5,7 @@ import { CircleX, EyeIcon, EyeOffIcon } from "lucide-react";
 import styles from "./LoginPage.module.scss";
 import { Loader } from "@/components/loader/Loader";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export const LoginPage = () => {
   const {
@@ -22,7 +22,6 @@ export const LoginPage = () => {
     loginError,
     openAlertPopUp,
     setOpenAlertPopUp,
-    getUserInfoIsPending,
   } = useLoginPageController();
 
   return (
