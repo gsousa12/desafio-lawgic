@@ -7,7 +7,7 @@ WORKDIR /app
 RUN npm install -g pnpm@latest
 
 # Copiar arquivos de dependência
-COPY .env package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Instalar dependências
 RUN pnpm install --frozen-lockfile

@@ -27,9 +27,9 @@ services:
       dockerfile: Dockerfile
     container_name: nestjs-api
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       DATABASE_URL: postgresql://lawgic:lawgic@postgres:5432/lawgic?schema=public
-      JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
+      JWT_SECRET: segredo_super_secreto
       PORT: 3000
     ports:
       - "3000:3000"

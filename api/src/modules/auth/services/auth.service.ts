@@ -45,14 +45,14 @@ export class AuthService implements IAuthService {
 
     const accessToken = this.jwtService.sign(payload);
 
-    const isProductionEnvironment = this.configService.get('isProduction', {
-      infer: true,
-    });
+    // const isProductionEnvironment = this.configService.get('isProduction', {
+    //   infer: true,
+    // });
 
     response.cookie('access_token', accessToken, {
       httpOnly: true,
-      secure: isProductionEnvironment,
-      sameSite: isProductionEnvironment ? 'none' : 'lax',
+      secure: false,
+      sameSite: 'lax',
       maxAge: Number(3600000),
     });
   }
@@ -86,14 +86,14 @@ export class AuthService implements IAuthService {
   }
 
   async logout(res: Response): Promise<void> {
-    const isProductionEnvironment = this.configService.get('isProduction', {
-      infer: true,
-    });
+    // const isProductionEnvironment = this.configService.get('isProduction', {
+    //   infer: true,
+    // });
 
     res.clearCookie('access_token', {
       httpOnly: true,
-      secure: isProductionEnvironment,
-      sameSite: isProductionEnvironment ? 'none' : 'lax',
+      secure: false,
+      sameSite: 'lax',
       path: '/',
     });
   }
