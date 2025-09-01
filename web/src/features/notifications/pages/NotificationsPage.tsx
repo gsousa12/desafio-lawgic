@@ -9,6 +9,8 @@ import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
 import { CircleX, RefreshCcw } from "lucide-react";
 import { BasePopup } from "@/components/popups/base-popup/BasePopup";
 import { CreateNotification } from "./CreateNotification";
+import { UserRoleType } from "@/common/types/entities";
+import { checkCreateNotificationButtonVisibility } from "@/common/utils/checks";
 
 export const NotificationsPage = () => {
   const {
@@ -24,6 +26,7 @@ export const NotificationsPage = () => {
     openCreatePopup,
     setOpenCreatePopup,
     handleCreateNotification,
+    userRole,
   } = useNotificationPageController();
 
   return (
@@ -31,7 +34,13 @@ export const NotificationsPage = () => {
       <header className={styles.header}>
         <h2 className={styles.title}>Listagem de Notificações</h2>
         <div className={styles.actions}>
-          <Button onClick={handleCreateNotification}>Criar Notificação</Button>
+          {checkCreateNotificationButtonVisibility(
+            userRole as UserRoleType
+          ) && (
+            <Button onClick={handleCreateNotification}>
+              Criar Notificação
+            </Button>
+          )}
           <Button onClick={() => handleRefetchPage()}>
             <RefreshCcw />
           </Button>

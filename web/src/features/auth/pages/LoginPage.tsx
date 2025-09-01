@@ -35,11 +35,10 @@ export const LoginPage = () => {
 
       <div className={styles.right}>
         <div className={styles.card}>
-          <h1 className={styles.title}>Lawgic Notificações</h1>
+          <h1 className={styles.title}>Lawgic Notificações</h1>{" "}
           <p className={styles.subtitle}>
             Sistema de gerenciamento de notificações judiciais
           </p>
-
           <form className={styles.form} onSubmit={onSubmit} noValidate>
             <TextInput
               id="email"

@@ -4,6 +4,7 @@ import { Meta } from "@/common/types/api/api.types";
 import { defaultMeta } from "@/common/utils/consts";
 import { useEffect, useState } from "react";
 import { Notification } from "../../../components/tables/notifications-table/NotificationsTable";
+import { useAuthStore } from "@/stores/auth/auth.store";
 
 interface UseNotificationPageControllerReturn {
   notifications?: Notification[];
@@ -19,6 +20,7 @@ interface UseNotificationPageControllerReturn {
   openCreatePopup: boolean;
   setOpenCreatePopup: (value: boolean) => void;
   handleCreateNotification: () => void;
+  userRole: string | undefined;
 }
 
 export const useNotificationPageController =
@@ -26,6 +28,8 @@ export const useNotificationPageController =
     const [page, setPage] = useState(1);
     const [openAlertPopup, setOpenAlertPopup] = useState<boolean>(false);
     const [openCreatePopup, setOpenCreatePopup] = useState(false);
+    const user = useAuthStore((store) => store.user);
+    const userRole = user?.role;
 
     const handleCreateNotification = () => {
       setOpenCreatePopup(true);
@@ -79,5 +83,6 @@ export const useNotificationPageController =
       openCreatePopup,
       setOpenCreatePopup,
       handleCreateNotification,
+      userRole,
     };
   };
