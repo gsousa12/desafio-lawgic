@@ -6,6 +6,10 @@ import { NotifiedPersonEntity } from "@/common/types/entities/person.entity";
 import { useAuthStore } from "@/stores/auth/auth.store";
 import { checkValidationButtonVisibility } from "@/common/utils/checks";
 import { UserRoleType } from "@/common/types/entities";
+import { boolean } from "zod";
+import { useState } from "react";
+import { BasePopup } from "@/components/popups/base-popup/BasePopup";
+import { NotificationDetails } from "@/features/notifications/pages/NotificationDetails";
 
 export type Notification = {
   id: string;
@@ -26,9 +30,8 @@ type NotificationsTableProps = {
 };
 
 export const NotificationsTable = ({ data }: NotificationsTableProps) => {
-  const user = useAuthStore((state) => state.user);
-  const userRole = user?.role;
-  console.log("userRole", userRole);
+  const [openDetailsPopup, setOpenDetailsPopup] = useState<boolean>(false);
+
   return (
     <div className={styles.wrapper}>
       <table className={styles.table} role="table">
@@ -79,7 +82,7 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                       type="button"
                       className={styles.iconBtn}
                       title="Detalhes"
-                      onClick={() => {}}
+                      onClick={() => setOpenDetailsPopup(true)}
                     >
                       <Eye />
                     </button>
@@ -107,6 +110,13 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
           )}
         </tbody>
       </table>
+      <BasePopup
+        open={openDetailsPopup}
+        onClose={() => setOpenDetailsPopup(false)}
+        title="Detalhes da Notificação"
+      >
+        <NotificationDetails />
+      </BasePopup>
     </div>
   );
 };
