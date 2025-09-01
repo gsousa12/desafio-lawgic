@@ -31,6 +31,12 @@ type NotificationsTableProps = {
 
 export const NotificationsTable = ({ data }: NotificationsTableProps) => {
   const [openDetailsPopup, setOpenDetailsPopup] = useState<boolean>(false);
+  const [notificationInDetails, setNotificationInDetails] =
+    useState<Notification>(data[0]);
+  const handleOpenNotificationDetails = (notification: Notification) => {
+    setNotificationInDetails(notification);
+    setOpenDetailsPopup(true);
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -82,7 +88,9 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                       type="button"
                       className={styles.iconBtn}
                       title="Detalhes"
-                      onClick={() => setOpenDetailsPopup(true)}
+                      onClick={() =>
+                        handleOpenNotificationDetails(notification)
+                      }
                     >
                       <Eye />
                     </button>
@@ -115,7 +123,7 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
         onClose={() => setOpenDetailsPopup(false)}
         title="Detalhes da Notificação"
       >
-        <NotificationDetails />
+        <NotificationDetails notification={notificationInDetails} />
       </BasePopup>
     </div>
   );
