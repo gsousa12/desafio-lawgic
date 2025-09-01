@@ -1,8 +1,8 @@
-import { CommonFieldsEntity } from './common';
+import { CommonFieldsEntity } from "./common";
 
 export type UserEntity = Pick<
   CommonFieldsEntity,
-  'id' | 'createdAt' | 'updatedAt' | 'deletedAt'
+  "id" | "createdAt" | "updatedAt" | "deletedAt"
 > & {
   name: string;
   email: string;
@@ -10,3 +10,5 @@ export type UserEntity = Pick<
   role: string;
   isActive: boolean;
 };
+
+export type UserRoleType = "admin" | "notifier" | "reviewer";

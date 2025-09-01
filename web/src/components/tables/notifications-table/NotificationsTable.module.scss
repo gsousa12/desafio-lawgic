@@ -115,6 +115,26 @@ $secondary-background: #141821;
   }
 }
 
+.disableIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(243, 230, 230, 0.247);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: #888991;
+
+  cursor: not-allowed;
+
+  & :global(svg) {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+  }
+}
+
 .danger {
   &:hover {
     background: rgba(239, 68, 68, 0.15);
