@@ -158,7 +158,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
           />
           <Button
             type="button"
-            className={styles.iconBtn}
             onClick={handleCepLookup}
             disabled={locked || !!loading || cepLookupLoading}
             title="Buscar CEP"
@@ -302,22 +301,12 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
 
       <div className={styles.actions}>
         {onCancel && (
-          <Button
-            type="button"
-            className={styles.btn}
-            onClick={onCancel}
-            disabled={!!loading}
-          >
+          <Button type="button" onClick={onCancel} disabled={!!loading}>
             Limpar Formulário
           </Button>
         )}
         {showBack && (
-          <Button
-            type="button"
-            className={styles.btn}
-            onClick={onBack}
-            disabled={!!loading}
-          >
+          <Button type="button" onClick={onBack} disabled={!!loading}>
             Voltar
           </Button>
         )}
@@ -325,7 +314,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
         {isLockedContinue ? (
           <Button
             type="button"
-            className={`${styles.btn} ${styles.btnPrimary}`}
             onClick={onLockedPrimary}
             disabled={!!loading || safeFields.length === 0}
           >
@@ -334,7 +322,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
         ) : (
           <Button
             type="submit"
-            className={`${styles.btn} ${styles.btnPrimary}`}
             disabled={!!loading || safeFields.length === 0 || !!locked}
           >
             {loading ? "Enviando..." : submitLabel}
