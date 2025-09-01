@@ -16,6 +16,7 @@ import {
 } from "react-hook-form";
 import { Search } from "lucide-react";
 import styles from "./DynamicForm.module.scss";
+import { Button } from "../Button/Button";
 
 type DynamicFormProps = {
   stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON";
@@ -52,7 +53,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   const schema = useMemo(() => makeZodSchema(safeFields), [safeFields]);
   const resolver = useMemo(() => makeRHFZodResolver(schema), [schema]);
 
-  // Normaliza defaults (datas, UF, phone, radio)
   const computedDefaults = useMemo(() => {
     const base: Record<string, any> = {};
     for (const f of safeFields) base[f.id] = "";
@@ -88,7 +88,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
     mode: "onBlur",
   });
 
-  // Persiste rascunho continuamente no Zustand (sem resetar o form)
   const setStep1Data = useCreateNotificationStore((s) => s.setStep1Data);
   const setStep2Data = useCreateNotificationStore((s) => s.setStep2Data);
   useEffect(() => {
@@ -104,7 +103,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   );
   const doCepLookup = useCreateNotificationStore((s) => s.lookupCep);
 
-  // CEP lookup click — NÃO resetar o form
   const handleCepLookup = useCallback(async () => {
     const rawCep = String(getValues("cep") ?? "");
     const clean = onlyDigits(rawCep);
@@ -115,7 +113,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
     clearErrors("cep");
     try {
       const data = await doCepLookup(clean);
-      // sobrescreve sempre os campos de endereço
       const nextState = String(data.state || "").toUpperCase();
       setValue("state", nextState, { shouldValidate: true, shouldDirty: true });
       setValue("city", data.city || "", {
@@ -130,7 +127,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
         shouldValidate: true,
         shouldDirty: true,
       });
-      // Nota: o watch acima já sincroniza esses valores para a store
     } catch (e: any) {
       setError("cep", {
         type: "manual",
@@ -139,7 +135,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
     }
   }, [doCepLookup, getValues, setError, clearErrors, setValue]);
 
-  // Handlers com máscara/normalização preservando RHF onChange
   const renderField = (f: FormField, errs: FieldErrors<FieldValues>) => {
     const reg = register(f.id);
     const commonProps = {
@@ -161,7 +156,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
             onChange={(e) => reg.onChange(e)}
             {...commonProps}
           />
-          <button
+          <Button
             type="button"
             className={styles.iconBtn}
             onClick={handleCepLookup}
@@ -170,7 +165,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
             aria-label="Buscar CEP"
           >
             <Search />
-          </button>
+          </Button>
         </div>
       );
     }
@@ -307,43 +302,43 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
 
       <div className={styles.actions}>
         {onCancel && (
-          <button
+          <Button
             type="button"
             className={styles.btn}
             onClick={onCancel}
             disabled={!!loading}
           >
             Limpar Formulário
-          </button>
+          </Button>
         )}
         {showBack && (
-          <button
+          <Button
             type="button"
             className={styles.btn}
             onClick={onBack}
             disabled={!!loading}
           >
             Voltar
-          </button>
+          </Button>
         )}
 
         {isLockedContinue ? (
-          <button
+          <Button
             type="button"
             className={`${styles.btn} ${styles.btnPrimary}`}
             onClick={onLockedPrimary}
             disabled={!!loading || safeFields.length === 0}
           >
             {submitLabel}
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="submit"
             className={`${styles.btn} ${styles.btnPrimary}`}
             disabled={!!loading || safeFields.length === 0 || !!locked}
           >
             {loading ? "Enviando..." : submitLabel}
-          </button>
+          </Button>
         )}
       </div>
     </form>

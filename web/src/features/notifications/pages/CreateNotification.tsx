@@ -1,42 +1,12 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import axios from "axios";
-import {
-  useForm,
-  FieldErrors,
-  SubmitHandler,
-  type FieldValues,
-  type Resolver,
-} from "react-hook-form";
-import { z } from "zod";
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { Search } from "lucide-react";
+import { useCallback, useEffect } from "react";
 import styles from "./CreateNotification.module.scss";
 import { api } from "@/api/axios";
-import {
-  ApiEnvelope,
-  FormField,
-  FormSchemaResponse,
-  Loading,
-  Schemas,
-  Step1FormValues,
-  Step2FormValues,
-} from "@/common/types/forms/forms";
-import {
-  fromIsoZToLocalInput,
-  maskPhone,
-  onlyDigits,
-  toIsoZFromLocal,
-} from "@/common/utils/convert";
+import { ApiEnvelope, FormSchemaResponse } from "@/common/types/forms/forms";
+import { onlyDigits } from "@/common/utils/convert";
 import { BrasilApiCep } from "@/common/types/api/api.types";
 import { useCreateNotificationStore } from "@/stores/notifications/notifications.store";
-import { makeZodSchema, ZodShape } from "../schemas/create-notification.schema";
-import { makeRHFZodResolver } from "@/common/utils/customResolver";
 import { DynamicForm } from "@/components/dynamic-form/DynamicForm";
 
-/* =========================================================
-   API helpers
-   ========================================================= */
 export const fetchSchema = async (
   stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON"
 ): Promise<FormSchemaResponse> => {
@@ -68,21 +38,6 @@ export const lookupCepApi = async (cep: string): Promise<BrasilApiCep> => {
   return (await resp.json()) as BrasilApiCep;
 };
 
-/* =========================================================
-   Validação dinâmica com Zod (Zod v4 classic friendly)
-   ========================================================= */
-
-/* =========================================================
-   Resolver custom — Zod -> RHF (evita @hookform/resolvers)
-   ========================================================= */
-
-/* =========================================================
-   DynamicForm — RHF + CEP lookup + máscaras
-   ========================================================= */
-
-/* =========================================================
-   Componente principal
-   ========================================================= */
 type CreateNotificationProps = {
   onClose?: () => void;
 };
@@ -108,20 +63,16 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
 
   const step1Locked = Boolean(notificationId);
 
-  // Carrega schema do Step 1 ao montar
   useEffect(() => {
     loadSchema("CREATE_NOTIFICATION");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Se iniciar no step 2 e schema do step 2 não estiver carregado (persist), garanta o load
   useEffect(() => {
     if (step === 2 && !schemas.step2) {
       loadSchema("CREATE_NOTIFIED_PERSON");
     }
   }, [step, schemas.step2, loadSchema]);
 
-  // Ao terminar com sucesso: fecha e reseta
   useEffect(() => {
     if (finished) {
       onClose?.();
@@ -141,7 +92,6 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
     async (payload: Record<string, any>) => {
       setStep2Data(payload);
       await assignPerson(payload);
-      // finished effect cuidará de fechar e resetar
     },
     [assignPerson, setStep2Data]
   );
@@ -160,7 +110,6 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
 
   return (
     <div className={styles.container}>
-      {/* Stepper compacto — somente informativo (sem navegação por clique) */}
       <div className={styles.stepper}>
         <div
           className={`${styles.step} ${step === 1 ? styles.active : ""}`}
@@ -178,7 +127,6 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
         </div>
       </div>
 
-      {/* Conteúdo por step */}
       <div className={styles.content}>
         {step === 1 && (
           <>

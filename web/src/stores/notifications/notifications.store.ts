@@ -15,14 +15,10 @@ import {
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-/* =========================================================
-   Zustand Store (persist em localStorage)
-   ========================================================= */
 type CreateNotificationStore = {
   step: 1 | 2;
   notificationId?: string;
 
-  // Drafts
   step1Data: Step1FormValues | null;
   step2Data: Step2FormValues | null;
 
@@ -30,7 +26,6 @@ type CreateNotificationStore = {
   loading: Loading;
   finished: boolean;
 
-  // Actions
   setStep: (s: 1 | 2) => void;
   resetAll: () => void;
 
@@ -83,9 +78,7 @@ export const useCreateNotificationStore = create<CreateNotificationStore>()(
               [key]: schema,
             },
           }));
-        } catch {
-          // opcional: armazenar um erro
-        }
+        } catch {}
       },
 
       setStep1Data: (partial) =>

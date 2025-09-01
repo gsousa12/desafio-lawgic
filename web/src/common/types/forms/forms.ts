@@ -1,18 +1,15 @@
-/* =========================================================
-   Tipos do fluxo
-   ========================================================= */
 export type Step1FormValues = {
   title?: string;
   description?: string;
-  hearingDate?: string; // datetime-local string em tela; convertemos p/ ISO-Z no submit
+  hearingDate?: string;
 };
 
 export type Step2FormValues = {
   name?: string;
   email?: string;
-  phone?: string; // com máscara em tela; converter p/ dígitos no submit
-  cep?: string; // validar 8 dígitos
-  state?: string; // forçar uppercase
+  phone?: string;
+  cep?: string;
+  state?: string;
   city?: string;
   neighborhood?: string;
   street?: string;
