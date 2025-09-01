@@ -17,11 +17,12 @@ export const LoginPage = () => {
     isSubmitting,
     showPassword,
     togglePasswordVisibility,
-    isPending,
-    isError,
-    error,
+    loginIsPending,
+    loginIsError,
+    loginError,
     openAlertPopUp,
     setOpenAlertPopUp,
+    getUserInfoIsPending,
   } = useLoginPageController();
 
   return (
@@ -71,17 +72,17 @@ export const LoginPage = () => {
               />
 
               <Button type="submit" loading={isSubmitting} fullWidth>
-                {isSubmitting ? "Entrando" : "Entrar"}
+                {isSubmitting ? "Entrando..." : "Entrar"}
               </Button>
             </form>
           </div>
         </div>
-        {isPending && !isError && <Loader />}
-        {isError && !isPending && (
+        {(loginIsPending || getUserInfoIsPending) && <Loader />}
+        {loginIsError && !loginIsPending && (
           <AlertPopup
             open={openAlertPopUp}
             title="Erro ao efetuar login"
-            description={error?.message}
+            description={loginError?.message}
             icon={<CircleX />}
             confirmLabel="Ok"
             onConfirm={() => {
