@@ -8,7 +8,7 @@ import { Pagination } from "@/components/pagination/Pagination";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
 import { CircleX, RefreshCcw } from "lucide-react";
 import { BasePopup } from "@/components/popups/base-popup/BasePopup";
-import CreateNotification from "./CreateNotification";
+import { CreateNotification } from "./CreateNotification";
 
 export const NotificationsPage = () => {
   const {
@@ -37,7 +37,7 @@ export const NotificationsPage = () => {
           </Button>
         </div>
       </header>
-      <NotificationsTable data={notifications} />
+      <NotificationsTable data={notifications ?? []} />
       <Pagination meta={meta} page={page} onPageChange={goToPage} />
       <BasePopup
         open={openCreatePopup}
