@@ -77,7 +77,7 @@ export const LoginPage = () => {
             </form>
           </div>
         </div>
-        {(loginIsPending || getUserInfoIsPending) && <Loader />}
+        {loginIsPending && <Loader />}
         {loginIsError && !loginIsPending && (
           <AlertPopup
             open={openAlertPopUp}

@@ -28,6 +28,7 @@ export const NotificationsPage = () => {
     setOpenCreatePopup,
     handleCreateNotification,
     userRole,
+    refetch,
   } = useNotificationPageController();
 
   return (
@@ -50,6 +51,7 @@ export const NotificationsPage = () => {
       <NotificationsTable data={notifications ?? []} />
       <Pagination meta={meta} page={page} onPageChange={goToPage} />
       <CreateNotificationPopup
+        refetch={handleRefetchPage}
         openCreatePopup={openCreatePopup}
         setOpenCreatePopup={setOpenCreatePopup}
       />

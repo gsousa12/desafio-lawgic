@@ -21,6 +21,7 @@ interface UseNotificationPageControllerReturn {
   setOpenCreatePopup: (value: boolean) => void;
   handleCreateNotification: () => void;
   userRole: string | undefined;
+  refetch: () => void;
 }
 
 export const useNotificationPageController =
@@ -84,5 +85,6 @@ export const useNotificationPageController =
       setOpenCreatePopup,
       handleCreateNotification,
       userRole,
+      refetch,
     };
   };
