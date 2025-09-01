@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   postgres:
     image: postgres:15-alpine
@@ -16,6 +18,33 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: nestjs-api
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://lawgic:lawgic@postgres:5432/lawgic?schema=public
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+    volumes:
+      - ./api/.env:/app/.env:ro # Opcional: montar .env se necessário
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
