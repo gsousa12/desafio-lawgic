@@ -22,7 +22,7 @@ export const Header = () => {
   const userRole = user?.role;
   return (
     <HeaderWrapper>
-      Bem vindo: {userName} | {userEmail} | {getUserRoleLabel(userRole)}
+      {userName} | {userEmail} | {getUserRoleLabel(userRole)}
       <div>
         <Button onClick={handleLogout}>
           <LogOut />

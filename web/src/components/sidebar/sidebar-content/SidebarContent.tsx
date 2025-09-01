@@ -1,4 +1,4 @@
-import { Gavel, UsersRound } from "lucide-react";
+import { Gavel, Megaphone, UsersRound } from "lucide-react";
 import { SidebarItem } from "../sidebar-item/SidebarItem";
 import { useLocation } from "react-router-dom";
 import styles from "./SidebarContent.module.scss";
@@ -9,7 +9,7 @@ export const SidebarContent = () => {
   return (
     <div className={styles.container}>
       <SidebarItem
-        icon={<Gavel />}
+        icon={<Megaphone />}
         label={"Notificações"}
         routerLink={"/notifications"}
         active={

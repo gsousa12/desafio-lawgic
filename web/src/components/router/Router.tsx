@@ -3,7 +3,7 @@ import { NotFoundPage } from "../not-found-page/NotFoundPage";
 import { ProtectedRoute } from "../protected-route/ProtectedRoute";
 import { NotificationsPage } from "../../features/notifications/pages/NotificationsPage";
 import styles from "./Router.module.scss";
-import { UsersPage } from "../../features/users/pages/UsersPage";
+// import { UsersPage } from "../../features/users/pages/UsersPage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { useAuthStore } from "@/stores/auth/auth.store";
 import { PublicOnlyRoute } from "../public-route/PublicRoute";
@@ -25,7 +25,7 @@ export const Router = () => {
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/users" element={<UsersPage />} />
+          {/* <Route path="/users" element={<UsersPage />} /> */}
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

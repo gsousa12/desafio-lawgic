@@ -7,7 +7,7 @@ const CREATE_NOTIFICATION = {
   fields: [
     {
       id: 'title',
-      label: 'Title',
+      label: 'Título',
       type: 'text',
       required: true,
       minLength: 3,
@@ -15,7 +15,7 @@ const CREATE_NOTIFICATION = {
     },
     {
       id: 'description',
-      label: 'Description',
+      label: 'Descrição',
       type: 'textarea',
       required: true,
       minLength: 10,
@@ -23,7 +23,7 @@ const CREATE_NOTIFICATION = {
     },
     {
       id: 'hearingDate',
-      label: 'Hearing Date',
+      label: 'Data da Audiência',
       type: 'date',
       required: true,
       format: 'date',
@@ -35,7 +35,7 @@ const CREATE_NOTIFIED_PERSON = {
   stepKey: 'CREATE_NOTIFIED_PERSON',
   title: 'Create Notified Person',
   fields: [
-    { id: 'name', label: 'Name', type: 'text', required: true, minLength: 3 },
+    { id: 'name', label: 'Nome', type: 'text', required: true, minLength: 3 },
     {
       id: 'email',
       label: 'Email',
@@ -43,31 +43,31 @@ const CREATE_NOTIFIED_PERSON = {
       required: true,
       format: 'email',
     },
-    { id: 'phone', label: 'Phone', type: 'text', required: true },
+    { id: 'phone', label: 'Telefone', type: 'text', required: true },
     { id: 'cep', label: 'CEP', type: 'text', required: true },
-    { id: 'state', label: 'State', type: 'text', required: true },
-    { id: 'city', label: 'City', type: 'text', required: true },
-    { id: 'neighborhood', label: 'Neighborhood', type: 'text', required: true },
-    { id: 'street', label: 'Street', type: 'text', required: true },
+    { id: 'state', label: 'Estado', type: 'text', required: true },
+    { id: 'city', label: 'Cidade', type: 'text', required: true },
+    { id: 'neighborhood', label: 'Bairro', type: 'text', required: true },
+    { id: 'street', label: 'Rua', type: 'text', required: true },
   ],
 };
 
-const VALIDATE_NOTIFICATION = {
-  stepKey: 'VALIDATE_NOTIFICATION',
-  title: 'Validate Notification',
-  fields: [
-    {
-      id: 'needsAdditionalInfo',
-      label: 'Needs additional info?',
-      type: 'radio',
-      required: true,
-      options: [
-        { label: 'Yes', value: true },
-        { label: 'No', value: false },
-      ],
-    },
-  ],
-};
+// const VALIDATE_NOTIFICATION = {
+//   stepKey: 'VALIDATE_NOTIFICATION',
+//   title: 'Validate Notification',
+//   fields: [
+//     {
+//       id: 'needsAdditionalInfo',
+//       label: 'Needs additional info?',
+//       type: 'radio',
+//       required: true,
+//       options: [
+//         { label: 'Yes', value: true },
+//         { label: 'No', value: false },
+//       ],
+//     },
+//   ],
+// };
 
 async function upsertActiveForm(stepKey, schemaJson) {
   const active = await prisma.formSchema.findFirst({
@@ -79,7 +79,6 @@ async function upsertActiveForm(stepKey, schemaJson) {
       where: { id: active.id },
       data: { schemaJson },
     });
-    console.log(`Updated active form for step ${stepKey}`);
     return;
   }
 
@@ -102,14 +101,12 @@ async function upsertActiveForm(stepKey, schemaJson) {
       schemaJson,
     },
   });
-
-  console.log(`Created form v${nextVersion} for step ${stepKey}`);
 }
 
 async function main() {
   await upsertActiveForm('CREATE_NOTIFICATION', CREATE_NOTIFICATION);
   await upsertActiveForm('CREATE_NOTIFIED_PERSON', CREATE_NOTIFIED_PERSON);
-  await upsertActiveForm('VALIDATE_NOTIFICATION', VALIDATE_NOTIFICATION);
+  // await upsertActiveForm('VALIDATE_NOTIFICATION', VALIDATE_NOTIFICATION);
 }
 
 main()

@@ -62,6 +62,16 @@ export function onlyDigits(str: string): string {
   return str.replace(/\D+/g, "");
 }
 
+/**
+ * Converte uma string de data/hora local para o formato ISO 8601 UTC (com 'Z').
+ * A função lida com vários formatos de entrada (YYYY-MM-DD, YYYY-MM-DDTHH:mm, YYYY-MM-DDTHH:mm:ss)
+ * e adiciona as partes de tempo e o designador 'Z' conforme necessário para padronizar em UTC.
+ *
+ * @param {string} input - A string de data/hora local a ser convertida.
+ * @returns {string} A string de data/hora no formato ISO 8601 com 'Z', ou a string original se o formato não for reconhecido.
+ * @example
+ * toIsoZFromLocal("2025-09-01") // retorna "2025-09-01T00:00:00.000Z"
+ */
 export function toIsoZFromLocal(input: string): string {
   if (!input) return input;
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(input)) return `${input}:00.000Z`;
@@ -71,6 +81,15 @@ export function toIsoZFromLocal(input: string): string {
   return input;
 }
 
+/**
+ * Converte uma string de data/hora no formato ISO 8601 (com ou sem 'Z')
+ * para o formato 'YYYY-MM-DDTHH:mm', que é compatível com inputs HTML do tipo 'datetime-local'.
+ *
+ * @param {string | undefined} iso - A string de data/hora ISO a ser convertida.
+ * @returns {string} A string de data/hora formatada como 'YYYY-MM-DDTHH:mm', ou uma string vazia se a entrada for inválida.
+ * @example
+ * fromIsoZToLocalInput("2025-09-01T11:57:30.000Z") // retorna "2025-09-01T11:57"
+ */
 export function fromIsoZToLocalInput(iso?: string): string {
   if (!iso || typeof iso !== "string") return "";
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(iso)) return iso;
@@ -111,6 +130,11 @@ export function maskPhone(value: string): string {
     .trim();
 }
 
+/**
+ * Retorna o primeiro nome de uma pessoa a partir do nome completo fornecido.
+ * @param fullName Nome completo da pessoa
+ * @returns
+ */
 export function getPersonFirstName(fullName?: string): string {
   if (!fullName || fullName.trim().length === 0) {
     return "";

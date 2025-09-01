@@ -4,6 +4,7 @@ import { ApiExceptionFilter } from './common/filters/exceptions.filter';
 import { ApiResponseInterceptor } from './common/interceptors/api-response.interceptor';
 import * as cookieParser from 'cookie-parser';
 import { SingleErrorPipe } from './common/pipes/single-error.pipe';
+import { RandomDelayInterceptor } from './common/interceptors/delay.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,7 @@ async function bootstrap() {
     }),
   );
   app.setGlobalPrefix('api');
+  app.useGlobalInterceptors(new RandomDelayInterceptor());
   app.useGlobalInterceptors(new ApiResponseInterceptor(reflector));
   app.useGlobalFilters(new ApiExceptionFilter());
   app.use(cookieParser());

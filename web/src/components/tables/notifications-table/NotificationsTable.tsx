@@ -1,10 +1,18 @@
-import { CircleX, Eye, Pencil } from "lucide-react";
+import { Check, CircleX, Eye, Pencil, ScanSearch } from "lucide-react";
 import styles from "./NotificationsTable.module.scss";
 import { NotificationStatusBadge } from "@/components/badges/notification-status-badge/NotificationStatusBadge";
 import { convertDateToPtBr, getPersonFirstName } from "@/common/utils/convert";
 import { NotifiedPersonEntity } from "@/common/types/entities/person.entity";
-import { useEffect } from "react";
-
+import { useAuthStore } from "@/stores/auth/auth.store";
+import { checkValidationButtonVisibility } from "@/common/utils/checks";
+import { UserRoleType } from "@/common/types/entities";
+import { boolean } from "zod";
+import { useState } from "react";
+import { BasePopup } from "@/components/popups/base-popup/BasePopup";
+import { NotificationDetails } from "@/components/notification-details/NotificationDetails";
+import { NotificationDetailsActions } from "@/components/notification-details-actions/NotificationDetailsActions";
+import { NotificationDetailsPopup } from "@/components/popups/notification-details-popup/NotificationDetailsPopup";
+import { motion } from "framer-motion";
 export type Notification = {
   id: string;
   authorId: string;
@@ -24,6 +32,15 @@ type NotificationsTableProps = {
 };
 
 export const NotificationsTable = ({ data }: NotificationsTableProps) => {
+  const [openDetailsPopup, setOpenDetailsPopup] = useState<boolean>(false);
+  const [notificationInFocus, setNotificationInFocus] = useState<Notification>(
+    data[0]
+  );
+  const handleOpenNotificationDetails = (notification: Notification) => {
+    setNotificationInFocus(notification);
+    setOpenDetailsPopup(true);
+  };
+
   return (
     <div className={styles.wrapper}>
       <table className={styles.table} role="table">
@@ -45,12 +62,22 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
               </td>
             </tr>
           ) : (
-            data.map((notification) => {
+            data.map((notification, index) => {
               const notifiedPerson = notification.notifiedPerson;
               const personName = (notifiedPerson as any)?.name;
               const personEmail = (notifiedPerson as any)?.email;
+
               return (
-                <tr key={notification.id}>
+                <motion.tr
+                  key={notification.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                    delay: index * 0.1,
+                  }}
+                >
                   <td className={styles.titleCell}>{notification.title}</td>
 
                   <td>
@@ -65,8 +92,9 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                   </td>
 
                   <td>
-                    {<NotificationStatusBadge status={notification.status} />}
+                    <NotificationStatusBadge status={notification.status} />
                   </td>
+
                   <td>{convertDateToPtBr(notification.hearingDate)}</td>
 
                   <td className={styles.actionsCell}>
@@ -74,38 +102,41 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                       type="button"
                       className={styles.iconBtn}
                       title="Detalhes"
-                      aria-label="Ver detalhes"
-                      onClick={() => {}}
+                      onClick={() =>
+                        handleOpenNotificationDetails(notification)
+                      }
                     >
                       <Eye />
                     </button>
-
                     <button
                       type="button"
-                      className={styles.iconBtn}
-                      title="Editar"
-                      aria-label="Editar"
-                      onClick={() => {}}
+                      className={
+                        notification.status !== "validation"
+                          ? styles.iconBtn
+                          : styles.disableIconBtn
+                      }
+                      title={
+                        notification.status !== "validation"
+                          ? "Editar"
+                          : "Notificações em validação não podem ser editadas"
+                      }
+                      disabled={notification.status === "validation"}
+                      onClick={() => alert("Editar")}
                     >
                       <Pencil />
                     </button>
-
-                    <button
-                      type="button"
-                      className={`${styles.iconBtn} ${styles.danger}`}
-                      title="Cancelar"
-                      aria-label="Cancelar"
-                      onClick={() => {}}
-                    >
-                      <CircleX />
-                    </button>
                   </td>
-                </tr>
+                </motion.tr>
               );
             })
           )}
         </tbody>
       </table>
+      <NotificationDetailsPopup
+        openDetailsPopup={openDetailsPopup}
+        notificationInFocus={notificationInFocus}
+        setOpenDetailsPopup={setOpenDetailsPopup}
+      />
     </div>
   );
 };
