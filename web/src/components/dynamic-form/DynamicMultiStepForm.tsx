@@ -15,10 +15,10 @@ import {
   useForm,
 } from "react-hook-form";
 import { Search } from "lucide-react";
-import styles from "./DynamicForm.module.scss";
+import styles from "./DynamicMultiStepForm.module.scss";
 import { Button } from "../Button/Button";
 
-type DynamicFormProps = {
+type DynamicMultiStepFormProps = {
   stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON";
   fields?: FormField[];
   locked?: boolean;
@@ -32,7 +32,7 @@ type DynamicFormProps = {
   onLockedPrimary?: () => void;
 };
 
-export const DynamicForm: React.FC<DynamicFormProps> = ({
+export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
   stepKey,
   fields,
   locked,

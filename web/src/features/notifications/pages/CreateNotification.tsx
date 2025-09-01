@@ -5,7 +5,7 @@ import { ApiEnvelope, FormSchemaResponse } from "@/common/types/forms/forms";
 import { onlyDigits } from "@/common/utils/convert";
 import { BrasilApiCep } from "@/common/types/api/api.types";
 import { useCreateNotificationStore } from "@/stores/notifications/notifications.store";
-import { DynamicForm } from "@/components/dynamic-form/DynamicForm";
+import { DynamicMultiStepForm } from "@/components/dynamic-form/DynamicMultiStepForm";
 
 export const fetchSchema = async (
   stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON"
@@ -134,7 +134,7 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
               <p className={styles.helper}>Carregando formulário...</p>
             )}
             {step1Schema && (
-              <DynamicForm
+              <DynamicMultiStepForm
                 stepKey="CREATE_NOTIFICATION"
                 fields={step1Schema.fields}
                 locked={step1Locked}
@@ -158,7 +158,7 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
               <p className={styles.helper}>Carregando formulário...</p>
             )}
             {step2Schema && (
-              <DynamicForm
+              <DynamicMultiStepForm
                 stepKey="CREATE_NOTIFIED_PERSON"
                 fields={step2Schema.fields}
                 loading={loading.step2}
