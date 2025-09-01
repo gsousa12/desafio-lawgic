@@ -11,7 +11,7 @@ import {
   apiCreateNotifiedPerson,
   fetchSchema,
   lookupCepApi,
-} from "@/features/notifications/pages/CreateNotification";
+} from "@/components/create-notification/CreateNotification";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 

@@ -9,8 +9,10 @@ import { UserRoleType } from "@/common/types/entities";
 import { boolean } from "zod";
 import { useState } from "react";
 import { BasePopup } from "@/components/popups/base-popup/BasePopup";
-import { NotificationDetails } from "@/features/notifications/pages/NotificationDetails";
-
+import { NotificationDetails } from "@/components/notification-details/NotificationDetails";
+import { NotificationDetailsActions } from "@/components/notification-details-actions/NotificationDetailsActions";
+import { NotificationDetailsPopup } from "@/components/popups/notification-details-popup/NotificationDetailsPopup";
+import { motion } from "framer-motion";
 export type Notification = {
   id: string;
   authorId: string;
@@ -31,10 +33,11 @@ type NotificationsTableProps = {
 
 export const NotificationsTable = ({ data }: NotificationsTableProps) => {
   const [openDetailsPopup, setOpenDetailsPopup] = useState<boolean>(false);
-  const [notificationInDetails, setNotificationInDetails] =
-    useState<Notification>(data[0]);
+  const [notificationInFocus, setNotificationInFocus] = useState<Notification>(
+    data[0]
+  );
   const handleOpenNotificationDetails = (notification: Notification) => {
-    setNotificationInDetails(notification);
+    setNotificationInFocus(notification);
     setOpenDetailsPopup(true);
   };
 
@@ -59,12 +62,22 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
               </td>
             </tr>
           ) : (
-            data.map((notification) => {
+            data.map((notification, index) => {
               const notifiedPerson = notification.notifiedPerson;
               const personName = (notifiedPerson as any)?.name;
               const personEmail = (notifiedPerson as any)?.email;
+
               return (
-                <tr key={notification.id}>
+                <motion.tr
+                  key={notification.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeOut",
+                    delay: index * 0.1,
+                  }}
+                >
                   <td className={styles.titleCell}>{notification.title}</td>
 
                   <td>
@@ -79,8 +92,9 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                   </td>
 
                   <td>
-                    {<NotificationStatusBadge status={notification.status} />}
+                    <NotificationStatusBadge status={notification.status} />
                   </td>
+
                   <td>{convertDateToPtBr(notification.hearingDate)}</td>
 
                   <td className={styles.actionsCell}>
@@ -112,19 +126,17 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                       <Pencil />
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               );
             })
           )}
         </tbody>
       </table>
-      <BasePopup
-        open={openDetailsPopup}
-        onClose={() => setOpenDetailsPopup(false)}
-        title="Detalhes da Notificação"
-      >
-        <NotificationDetails notification={notificationInDetails} />
-      </BasePopup>
+      <NotificationDetailsPopup
+        openDetailsPopup={openDetailsPopup}
+        notificationInFocus={notificationInFocus}
+        setOpenDetailsPopup={setOpenDetailsPopup}
+      />
     </div>
   );
 };

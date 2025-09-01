@@ -7,8 +7,5 @@ export const NotificationDetails = ({
   notification,
 }: NotificationDetailsProps) => {
   console.log(notification);
-  return (
-    <>Conteudo</>
-    // <NotificationDetailsActions/>
-  );
+  return <>Conteudo</>;
 };
