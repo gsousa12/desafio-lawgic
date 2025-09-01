@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import configurations from './common/config/configurations';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UsersModule } from './modules/users/users.module';
+import { FormsModule } from './modules/forms/forms.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     NotificationsModule,
     UsersModule,
+    FormsModule,
   ],
   controllers: [],
   providers: [],

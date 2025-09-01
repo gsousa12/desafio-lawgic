@@ -3,9 +3,10 @@ import { useApiQuery } from "@/api/dispatchs/hooks";
 import { Meta } from "@/common/types/api/api.types";
 import { defaultMeta } from "@/common/utils/consts";
 import { useEffect, useState } from "react";
+import { Notification } from "../../../components/tables/notifications-table/NotificationsTable";
 
 interface UseNotificationPageControllerReturn {
-  notifications?: any[];
+  notifications?: Notification[];
   meta?: Meta;
   isFetching?: boolean;
   isError?: boolean;

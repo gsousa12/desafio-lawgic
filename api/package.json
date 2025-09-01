@@ -16,7 +16,11 @@
     "prisma:generate": "pnpx prisma generate --schema=./src/database/prisma/schema.prisma",
     "prisma:migrate": "pnpx prisma migrate dev --schema=./src/database/prisma/schema.prisma",
     "prisma:reset": "pnpx prisma migrate reset --schema=./src/database/prisma/schema.prisma",
-    "prisma:deploy": "pnpx prisma migrate deploy --schema=./src/database/prisma/schema.prisma"
+    "prisma:deploy": "pnpx prisma migrate deploy --schema=./src/database/prisma/schema.prisma",
+    "prisma:seed": "pnpx prisma db seed --schema=./src/database/prisma/schema.prisma"
+  },
+  "prisma": {
+    "seed": "node ./src/database/prisma/seed.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

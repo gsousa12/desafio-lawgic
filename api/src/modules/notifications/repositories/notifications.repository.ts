@@ -17,8 +17,8 @@ export class NotificationsRepository
   async create(
     request: CreateNotificationRequestDTO,
     userId: string,
-  ): Promise<void> {
-    await this.db.notification.create({
+  ): Promise<any> {
+    return await this.db.notification.create({
       data: {
         authorId: userId,
         title: request.title,

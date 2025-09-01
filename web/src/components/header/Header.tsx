@@ -4,6 +4,7 @@ import { useAuthContext } from "../providers/auth-provider/AuthProvider";
 import { useAuthStore } from "@/stores/auth/auth.store";
 import { Button } from "../Button/Button";
 import { LogOut } from "lucide-react";
+import { getUserRoleLabel } from "@/common/utils/convert";
 
 export const Header = () => {
   const logout = useAuthContext().logout;
@@ -18,9 +19,10 @@ export const Header = () => {
   const user = useAuthStore((store) => store.user);
   const userName = user?.name;
   const userEmail = user?.email;
+  const userRole = user?.role;
   return (
     <HeaderWrapper>
-      Bem vindo: {userName} | {userEmail}
+      Bem vindo: {userName} | {userEmail} | {getUserRoleLabel(userRole)}
       <div>
         <Button onClick={handleLogout}>
           <LogOut />

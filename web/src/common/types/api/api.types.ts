@@ -23,3 +23,12 @@ export type JwtPayload = {
   iat?: number;
   exp?: number;
 };
+
+export type BrasilApiCep = {
+  cep: string;
+  state: string;
+  city: string;
+  neighborhood: string;
+  street: string;
+  service: string;
+};

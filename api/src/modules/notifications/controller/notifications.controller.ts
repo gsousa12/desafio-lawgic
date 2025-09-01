@@ -29,9 +29,9 @@ export class NotificationsController {
   async create(
     @Body() request: CreateNotificationRequestDTO,
     @User() user: JwtPayload,
-  ): Promise<void> {
+  ): Promise<any> {
     const userId = user.userId;
-    await this.notificationsService.create(request, userId);
+    return await this.notificationsService.create(request, userId);
   }
 
   @UseGuards(JwtAuthGuard)

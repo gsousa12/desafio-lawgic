@@ -6,16 +6,17 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id                          String                   @id @default(uuid())
-  name                        String
-  email                       String                   @unique
-  password                    String
-  role                        String
-  isActive                    Boolean                  @default(true)          @map("is_active")
-  createdAt                   DateTime                 @default(now())         @map("created_at") @db.Timestamptz
-  updatedAt                   DateTime                 @updatedAt              @map("updated_at") @db.Timestamptz
-  deletedAt                   DateTime?                                        @map("deleted_at") @db.Timestamptz
+  id                String          @id @default(uuid())
+  name              String
+  email             String          @unique
+  password          String
+  role              String
+  isActive          Boolean         @default(true) @map("is_active")
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt         DateTime?       @map("deleted_at") @db.Timestamptz
 
   @@map("users")
   authoredNotifications Notification[] @relation("AuthoredNotifications")
@@ -23,39 +24,51 @@ model User {
 }
 
 model Notification {
-  id                          String                   @id @default(uuid())
-  authorId                    String                                           @map("author_id")
-  reviewerId                  String?                                          @map("reviewer_id")
-  title                       String                   @unique
-  description                 String
-  hearingDate                 DateTime                                        @map("hearing_date") @db.Timestamptz
-  status                      String
-  createdAt                   DateTime                 @default(now())         @map("created_at") @db.Timestamptz
-  updatedAt                   DateTime                 @updatedAt              @map("updated_at") @db.Timestamptz
-  canceledAt                  DateTime?                                        @map("deleted_at") @db.Timestamptz
+  id            String     @id @default(uuid())
+  authorId      String     @map("author_id")
+  reviewerId    String?    @map("reviewer_id")
+  title         String     @unique
+  description   String
+  hearingDate   DateTime   @map("hearing_date") @db.Timestamptz
+  status        String
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+  canceledAt    DateTime?  @map("deleted_at") @db.Timestamptz
 
   @@map("notifications")
-  author   User   @relation("AuthoredNotifications", fields: [authorId], references: [id])
-  reviewer User?  @relation("ReviewedNotifications", fields: [reviewerId], references: [id])
+  author        User       @relation("AuthoredNotifications", fields: [authorId], references: [id])
+  reviewer      User?      @relation("ReviewedNotifications", fields: [reviewerId], references: [id])
 
-  notifiedPerson NotifiedPerson[] @relation("NotificationToNotifiedPerson")
+  notifiedPerson NotifiedPerson?
 }
 
 model NotifiedPerson {
-  id                          String                   @id @default(uuid())
-  notificationId              String                                           @map("notification_id")
-  name                        String                                           
-  email                       String
-  phone                       String
-  cep                         String
-  state                       String
-  city                        String
-  neighborhood                String
-  street                      String
-  createdAt                   DateTime                 @default(now())         @map("created_at") @db.Timestamptz
-  updatedAt                   DateTime                 @updatedAt              @map("updated_at") @db.Timestamptz
+  id              String   @id @default(uuid())
+  notificationId  String   @unique @map("notification_id")  
+  name            String
+  email           String
+  phone           String
+  cep             String
+  state           String
+  city            String
+  neighborhood    String
+  street          String
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("notified_persons")
-  notificationToNotifiedPerson   Notification   @relation("NotificationToNotifiedPerson", fields: [notificationId], references: [id])
+  notification Notification @relation(fields: [notificationId], references: [id])
+}
 
+
+model FormSchema {
+  id         String   @id @default(uuid())
+  stepKey    String   
+  version    Int      @default(1)
+  isActive   Boolean  @default(true)
+  schemaJson Json    
+  createdAt  DateTime @default(now()) @db.Timestamptz
+
+  @@map("form_schemas")
+  @@index([stepKey, isActive])
 }
