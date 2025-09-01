@@ -35,7 +35,7 @@ const CREATE_NOTIFIED_PERSON = {
   stepKey: 'CREATE_NOTIFIED_PERSON',
   title: 'Create Notified Person',
   fields: [
-    { id: 'name', label: 'Name', type: 'text', required: true, minLength: 3 },
+    { id: 'name', label: 'Nome', type: 'text', required: true, minLength: 3 },
     {
       id: 'email',
       label: 'Email',
@@ -79,7 +79,6 @@ async function upsertActiveForm(stepKey, schemaJson) {
       where: { id: active.id },
       data: { schemaJson },
     });
-    console.log(`Updated active form for step ${stepKey}`);
     return;
   }
 
@@ -102,8 +101,6 @@ async function upsertActiveForm(stepKey, schemaJson) {
       schemaJson,
     },
   });
-
-  console.log(`Created form v${nextVersion} for step ${stepKey}`);
 }
 
 async function main() {
