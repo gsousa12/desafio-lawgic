@@ -6,7 +6,9 @@ import { CreateNotificationRequestDTO } from '../dtos/request/create.dto';
 import { ApiException } from 'src/common/exceptions/api.exection';
 import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
 import { NotificationEntity } from 'src/common/types/entities';
-import { Meta } from 'src/common/types/api/api.types';
+import { JwtPayload, Meta } from 'src/common/types/api/api.types';
+import { ReviewNotificationRequestDTO } from '../dtos/request/review.dto';
+import { NotificationStatus } from 'src/common/utils/enums';
 
 @Injectable()
 export class NotificationsService implements INotificationsServiceInterface {
@@ -64,5 +66,28 @@ export class NotificationsService implements INotificationsServiceInterface {
       data: data.length === 1 ? [data] : data,
     };
     return response;
+  }
+
+  async review(
+    request: ReviewNotificationRequestDTO,
+    user: JwtPayload,
+  ): Promise<void> {
+    const notification = await this.notificationsRepository.getById(
+      request.notificationId,
+    );
+    if (!notification) {
+      throw new ApiException(
+        'Não existe uma notificação cadastrada com esse id',
+        404,
+      );
+    }
+    if (notification.status !== NotificationStatus.Validation) {
+      throw new ApiException(
+        "A notificação só pode ser revisada se estiver com o status 'Em validação'",
+        400,
+      );
+    }
+
+    await this.notificationsRepository.review(request, user);
   }
 }

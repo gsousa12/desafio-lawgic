@@ -104,7 +104,9 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                     <button
                       type="button"
                       className={
-                        notification.status !== "validation"
+                        !["validation", "completed"].includes(
+                          notification.status
+                        )
                           ? styles.iconBtn
                           : styles.disableIconBtn
                       }
@@ -113,7 +115,10 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                           ? "Editar"
                           : "Notificações em validação não podem ser editadas"
                       }
-                      disabled={notification.status === "validation"}
+                      disabled={
+                        notification.status === "validation" ||
+                        notification.status === "completed"
+                      }
                       onClick={() => alert("Editar")}
                     >
                       <Pencil />
