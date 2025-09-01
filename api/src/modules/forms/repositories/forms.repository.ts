@@ -10,7 +10,6 @@ export class FormsRepository implements IFormsRepository {
     const form = await this.db.formSchema.findFirst({
       where: { stepKey: stepKey, isActive: true },
     });
-    console.log(form);
     return form ?? null;
   }
 }

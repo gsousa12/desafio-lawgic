@@ -57,11 +57,11 @@ export class NotificationsService implements INotificationsServiceInterface {
     userId: string;
     userRole: string;
     page: number;
-  }): Promise<{ data: NotificationEntity[]; meta: Meta }> {
+  }): Promise<{ data: any; meta: Meta }> {
     const { data, meta } = await this.notificationsRepository.getAll(filters);
     const response = {
       meta: meta,
-      data: data,
+      data: data.length === 1 ? [data] : data,
     };
     return response;
   }
