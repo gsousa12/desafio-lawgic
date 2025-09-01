@@ -5,7 +5,7 @@ import { CircleX, EyeIcon, EyeOffIcon } from "lucide-react";
 import styles from "./LoginPage.module.scss";
 import { Loader } from "@/components/loader/Loader";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export const LoginPage = () => {
   const {
@@ -17,9 +17,9 @@ export const LoginPage = () => {
     isSubmitting,
     showPassword,
     togglePasswordVisibility,
-    isPending,
-    isError,
-    error,
+    loginIsPending,
+    loginIsError,
+    loginError,
     openAlertPopUp,
     setOpenAlertPopUp,
   } = useLoginPageController();
@@ -71,17 +71,17 @@ export const LoginPage = () => {
               />
 
               <Button type="submit" loading={isSubmitting} fullWidth>
-                {isSubmitting ? "Entrando" : "Entrar"}
+                {isSubmitting ? "Entrando..." : "Entrar"}
               </Button>
             </form>
           </div>
         </div>
-        {isPending && !isError && <Loader />}
-        {isError && !isPending && (
+        {loginIsPending && <Loader />}
+        {loginIsError && !loginIsPending && (
           <AlertPopup
             open={openAlertPopUp}
             title="Erro ao efetuar login"
-            description={error?.message}
+            description={loginError?.message}
             icon={<CircleX />}
             confirmLabel="Ok"
             onConfirm={() => {

@@ -7,8 +7,6 @@ import { Button } from "@/components/Button/Button";
 import { Pagination } from "@/components/pagination/Pagination";
 import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
 import { CircleX, RefreshCcw } from "lucide-react";
-import { BasePopup } from "@/components/popups/base-popup/BasePopup";
-import { CreateNotification } from "../../../components/create-notification/CreateNotification";
 import { UserRoleType } from "@/common/types/entities";
 import { checkCreateNotificationButtonVisibility } from "@/common/utils/checks";
 import { CreateNotificationPopup } from "@/components/popups/create-notification-popup/CreateNotificationPopup";
@@ -50,6 +48,7 @@ export const NotificationsPage = () => {
       <NotificationsTable data={notifications ?? []} />
       <Pagination meta={meta} page={page} onPageChange={goToPage} />
       <CreateNotificationPopup
+        refetch={handleRefetchPage}
         openCreatePopup={openCreatePopup}
         setOpenCreatePopup={setOpenCreatePopup}
       />

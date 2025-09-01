@@ -27,11 +27,14 @@ interface UseLoginPageControllerReturn {
   isSubmitting: boolean;
   showPassword: boolean;
   togglePasswordVisibility: () => void;
-  isPending: boolean;
-  isError: boolean;
-  error: ApiErrorResponseType | null;
+  loginIsPending: boolean;
+  loginIsError: boolean;
+  loginError: ApiErrorResponseType | null;
   openAlertPopUp: boolean;
   setOpenAlertPopUp: (value: boolean) => void;
+  getUserInfoIsPending: boolean;
+  getUserInfoIsError: boolean;
+  getUserInfoError: ApiErrorResponseType | null;
 }
 
 export const useLoginPageController = (): UseLoginPageControllerReturn => {
@@ -54,7 +57,7 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
 
   const {
     mutateAsync: loginDispatch,
-    isPending: loginIsPeding,
+    isPending: loginIsPending,
     isError: loginIsError,
     error: loginError,
   } = useApiMutation<null, LoginFormValues>((loginData) =>
@@ -62,6 +65,7 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
   );
 
   const {
+    isPending: getUserInfoIsPending,
     isError: getUserInfoIsError,
     error: getUserInfoError,
     refetch: useGetUserInformationFetch,
@@ -108,10 +112,13 @@ export const useLoginPageController = (): UseLoginPageControllerReturn => {
     isSubmitting,
     showPassword,
     togglePasswordVisibility,
-    isPending: loginIsPeding,
-    isError: loginIsError || getUserInfoIsError,
-    error: loginError || getUserInfoError,
+    loginIsPending: loginIsPending,
+    loginIsError: loginIsError,
+    loginError: loginError,
     openAlertPopUp,
     setOpenAlertPopUp,
+    getUserInfoIsPending,
+    getUserInfoError,
+    getUserInfoIsError,
   };
 };

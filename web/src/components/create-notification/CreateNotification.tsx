@@ -40,9 +40,13 @@ export const lookupCepApi = async (cep: string): Promise<BrasilApiCep> => {
 
 type CreateNotificationProps = {
   onClose?: () => void;
+  refetch: () => void;
 };
 
-export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
+export const CreateNotification = ({
+  onClose,
+  refetch,
+}: CreateNotificationProps) => {
   const step = useCreateNotificationStore((s) => s.step);
   const setStep = useCreateNotificationStore((s) => s.setStep);
   const notificationId = useCreateNotificationStore((s) => s.notificationId);
@@ -131,7 +135,9 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
         {step === 1 && (
           <>
             {!step1Schema && (
-              <p className={styles.helper}>Carregando formulário...</p>
+              <p className={styles.helper}>
+                Aguarde estamos montando o formulário...
+              </p>
             )}
             {step1Schema && (
               <DynamicMultiStepForm
@@ -147,6 +153,7 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
                 onCancel={handleCancel}
                 allowSubmitWhenLocked={step1Locked}
                 onLockedPrimary={() => setStep(2)}
+                refetch={refetch}
               />
             )}
           </>
@@ -155,7 +162,9 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
         {step === 2 && (
           <>
             {!step2Schema && (
-              <p className={styles.helper}>Carregando formulário...</p>
+              <p className={styles.helper}>
+                Aguarde estamos montando o formulário...
+              </p>
             )}
             {step2Schema && (
               <DynamicMultiStepForm
@@ -167,6 +176,7 @@ export const CreateNotification = ({ onClose }: CreateNotificationProps) => {
                 onSubmit={handleSubmitStep2}
                 onBack={handleBack}
                 onCancel={handleCancel}
+                refetch={refetch}
               />
             )}
           </>

@@ -30,6 +30,7 @@ type DynamicMultiStepFormProps = {
   onCancel?: () => void;
   allowSubmitWhenLocked?: boolean;
   onLockedPrimary?: () => void;
+  refetch: () => void;
 };
 
 export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
@@ -44,6 +45,7 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
   onCancel,
   allowSubmitWhenLocked,
   onLockedPrimary,
+  refetch,
 }) => {
   const safeFields = useMemo<FormField[]>(
     () => (Array.isArray(fields) ? fields : []),
@@ -271,6 +273,7 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
   };
 
   const submit: SubmitHandler<FieldValues> = async (vals) => {
+    refetch();
     await onSubmit({ ...vals });
   };
 

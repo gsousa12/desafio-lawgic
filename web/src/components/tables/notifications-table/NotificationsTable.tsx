@@ -1,16 +1,9 @@
-import { Check, CircleX, Eye, Pencil, ScanSearch } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import styles from "./NotificationsTable.module.scss";
 import { NotificationStatusBadge } from "@/components/badges/notification-status-badge/NotificationStatusBadge";
 import { convertDateToPtBr, getPersonFirstName } from "@/common/utils/convert";
 import { NotifiedPersonEntity } from "@/common/types/entities/person.entity";
-import { useAuthStore } from "@/stores/auth/auth.store";
-import { checkValidationButtonVisibility } from "@/common/utils/checks";
-import { UserRoleType } from "@/common/types/entities";
-import { boolean } from "zod";
 import { useState } from "react";
-import { BasePopup } from "@/components/popups/base-popup/BasePopup";
-import { NotificationDetails } from "@/components/notification-details/NotificationDetails";
-import { NotificationDetailsActions } from "@/components/notification-details-actions/NotificationDetailsActions";
 import { NotificationDetailsPopup } from "@/components/popups/notification-details-popup/NotificationDetailsPopup";
 import { motion } from "framer-motion";
 export type Notification = {
