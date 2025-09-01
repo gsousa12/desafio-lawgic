@@ -40,15 +40,13 @@ services:
     networks:
       - app-network
     volumes:
-      - ./api/.env:/app/.env:ro # Opcional: montar .env se necessário
+      - ./api/.env:/app/.env:ro
 
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
       args:
-        # O frontend chamará a API via localhost:3000
-        # (o browser não consegue resolver "api" do Docker, então use a porta exposta)
         VITE_API_URL: "http://localhost:3000"
     container_name: web
     ports:
