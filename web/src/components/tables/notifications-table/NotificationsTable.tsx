@@ -63,8 +63,8 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
               return (
                 <motion.tr
                   key={notification.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   transition={{
                     duration: 0.3,
                     ease: "easeOut",
