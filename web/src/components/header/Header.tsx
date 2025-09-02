@@ -24,7 +24,7 @@ export const Header = () => {
       await submitLogout(null);
       logout();
     } catch (error) {
-      alert("Logout failed, try again.");
+      setOpenAlertPopup(true);
     }
   };
   const user = useAuthStore((store) => store.user);

@@ -86,7 +86,12 @@ export const CreateNotification = ({
 
   const handleSubmitStep1 = useCallback(
     async (payload: Record<string, any>) => {
-      setStep1Data(payload);
+      const request = {
+        title: payload.title,
+        description: payload.description,
+        hearingDate: new Date(payload.hearingDate).toISOString(),
+      };
+      setStep1Data(request);
       await createNotification(payload);
     },
     [createNotification, setStep1Data]

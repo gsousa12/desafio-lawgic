@@ -25,12 +25,15 @@ export class NotificationsRepository
     request: CreateNotificationRequestDTO,
     userId: string,
   ): Promise<any> {
+    const hearingDate = new Date(request.hearingDate);
+    hearingDate.setHours(hearingDate.getHours() + 3);
+
     return await this.db.notification.create({
       data: {
         authorId: userId,
         title: request.title,
         description: request.description,
-        hearingDate: request.hearingDate,
+        hearingDate,
         status: NotificationStatus.InProgress,
       },
     });
