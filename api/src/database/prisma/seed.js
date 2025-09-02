@@ -52,23 +52,6 @@ const CREATE_NOTIFIED_PERSON = {
   ],
 };
 
-// const VALIDATE_NOTIFICATION = {
-//   stepKey: 'VALIDATE_NOTIFICATION',
-//   title: 'Validate Notification',
-//   fields: [
-//     {
-//       id: 'needsAdditionalInfo',
-//       label: 'Needs additional info?',
-//       type: 'radio',
-//       required: true,
-//       options: [
-//         { label: 'Yes', value: true },
-//         { label: 'No', value: false },
-//       ],
-//     },
-//   ],
-// };
-
 async function upsertActiveForm(stepKey, schemaJson) {
   const active = await prisma.formSchema.findFirst({
     where: { stepKey, isActive: true },
@@ -103,10 +86,55 @@ async function upsertActiveForm(stepKey, schemaJson) {
   });
 }
 
+async function upsertNotifierUser() {
+  const email = 'notifier@lawgic.com';
+
+  await prisma.user.upsert({
+    where: { email },
+    update: {
+      name: 'Lawgic Notifier',
+      isActive: true,
+      role: 'notifier',
+      password: '$2b$10$/qXSt2NS7BSn89nepcSDSeJ/dEHU3RV1Ie7alR9FMTuy7IL2pKy5O',
+    },
+    create: {
+      name: 'Lawgic Notifier',
+      email,
+      isActive: true,
+      deletedAt: null,
+      role: 'notifier',
+      password: '$2b$10$/qXSt2NS7BSn89nepcSDSeJ/dEHU3RV1Ie7alR9FMTuy7IL2pKy5O',
+    },
+  });
+}
+
+async function upsertReviewerUser() {
+  const email = 'reviewer@lawgic.com';
+
+  await prisma.user.upsert({
+    where: { email },
+    update: {
+      name: 'Lawgic Reviewer',
+      isActive: true,
+      role: 'reviewer',
+      password: '$2b$10$yzivOZ76vuUjEyTN2zaTFu.4Oy0evpEHzjkJNIXfrQgsdASeKD34a',
+    },
+    create: {
+      name: 'Lawgic Reviewer',
+      email,
+      isActive: true,
+      deletedAt: null,
+      role: 'reviewer',
+      password: '$2b$10$yzivOZ76vuUjEyTN2zaTFu.4Oy0evpEHzjkJNIXfrQgsdASeKD34a',
+    },
+  });
+}
+
 async function main() {
   await upsertActiveForm('CREATE_NOTIFICATION', CREATE_NOTIFICATION);
   await upsertActiveForm('CREATE_NOTIFIED_PERSON', CREATE_NOTIFIED_PERSON);
-  // await upsertActiveForm('VALIDATE_NOTIFICATION', VALIDATE_NOTIFICATION);
+  await upsertNotifierUser();
+  await upsertReviewerUser();
 }
 
 main()
