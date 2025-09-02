@@ -82,13 +82,14 @@ $secondary-background: #141821;
 }
 
 .active {
-  background: $primary-color;
-  color: #fff;
+  background: linear-gradient(180deg, $primary-color, $secondary-color);
+  color: #ffffff;
   border-color: rgba(255, 255, 255, 0.12);
-
+  transform: translateY(1px);
   &:hover {
-    background: $primary-color;
+    background: linear-gradient(180deg, $primary-color, $secondary-color);
     color: #fff;
+    filter: brightness(1.05);
   }
 }
 

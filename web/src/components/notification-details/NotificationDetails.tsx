@@ -1,8 +1,9 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import styles from "./NotificationDetails.module.scss";
 import type { Notification } from "@/components/tables/notifications-table/NotificationsTable";
 import { NotifiedPersonEntity } from "@/common/types/entities/person.entity";
 import { NotificationStatusBadge } from "../badges/notification-status-badge/NotificationStatusBadge";
+import { convertDateToPtBr } from "@/common/utils/convert";
 
 interface NotificationDetailsProps {
   notification: Notification;
@@ -43,7 +44,9 @@ export const NotificationDetails = ({
       <div className={styles.grid}>
         <div className={styles.field}>
           <div className={styles.label}>Data da Audiência</div>
-          <div className={styles.value}>{notification.hearingDate}</div>
+          <div className={styles.value}>
+            {convertDateToPtBr(notification.hearingDate)}
+          </div>
         </div>
       </div>
 
