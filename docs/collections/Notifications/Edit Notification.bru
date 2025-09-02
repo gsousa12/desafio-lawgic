@@ -1,0 +1,20 @@
+meta {
+  name: Edit Notification
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:3000/api/notifications/notification
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "notificationId": "b5fd9b81-f106-44d8-a6be-fdc6ff61545d",
+    "title": "Novo título da notificação",
+    "description": "Descrição atualizada da notificação (entre 10 e 1000 caracteres).",
+    "hearingDate": "2025-10-23T13:00:00.000Z"
+  }
+}

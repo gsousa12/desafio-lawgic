@@ -1,0 +1,18 @@
+meta {
+  name: Review
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/notifications/review
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "notificationId": "fccd9eaa-539f-4ef1-8f64-f12a0745730d",
+    "action": "approve"
+  }
+}

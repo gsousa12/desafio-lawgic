@@ -1,0 +1,25 @@
+meta {
+  name: Edit Person
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://localhost:3000/api/notifications/person
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "notificationId": "9f46a12f-aaeb-411a-8837-b4fca77e2cf2",
+    "name": "Vasco da gama",
+    "email": "admin@lawgic.com",
+    "phone": "88981555205",
+    "cep": "63700000",
+    "state": "CE",
+    "city": "Crateús",
+    "neighborhood": "Conjunto Habitacional Padre Anchieta",
+    "street": "Rua D. Pedro II"
+  }
+}
