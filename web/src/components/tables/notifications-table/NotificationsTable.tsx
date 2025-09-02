@@ -6,6 +6,7 @@ import { NotifiedPersonEntity } from "@/common/types/entities/person.entity";
 import { useState } from "react";
 import { NotificationDetailsPopup } from "@/components/popups/notification-details-popup/NotificationDetailsPopup";
 import { motion } from "framer-motion";
+import { NotificationEditionPopup } from "@/components/popups/notification-edition-popup/NotificationEditionPopup";
 export type Notification = {
   id: string;
   authorId: string;
@@ -30,12 +31,19 @@ export const NotificationsTable = ({
   refetch,
 }: NotificationsTableProps) => {
   const [openDetailsPopup, setOpenDetailsPopup] = useState<boolean>(false);
+  const [openEditionPopup, setOpenEditionPopup] = useState<boolean>(false);
   const [notificationInFocus, setNotificationInFocus] = useState<Notification>(
     data[0]
   );
   const handleOpenNotificationDetails = (notification: Notification) => {
     setNotificationInFocus(notification);
+    setOpenEditionPopup(false);
     setOpenDetailsPopup(true);
+  };
+  const handleOpenEditionPopup = (notification: Notification) => {
+    setNotificationInFocus(notification);
+    setOpenDetailsPopup(false);
+    setOpenEditionPopup(true);
   };
 
   return (
@@ -123,7 +131,7 @@ export const NotificationsTable = ({
                         notification.status === "validation" ||
                         notification.status === "completed"
                       }
-                      onClick={() => alert("Editar")}
+                      onClick={() => handleOpenEditionPopup(notification)}
                     >
                       <Pencil />
                     </button>
@@ -138,6 +146,12 @@ export const NotificationsTable = ({
         openDetailsPopup={openDetailsPopup}
         notificationInFocus={notificationInFocus}
         setOpenDetailsPopup={setOpenDetailsPopup}
+        refetch={refetch}
+      />
+      <NotificationEditionPopup
+        openEditionPopup={openEditionPopup}
+        notificationInFocus={notificationInFocus}
+        setOpenEditionPopup={setOpenEditionPopup}
         refetch={refetch}
       />
     </div>

@@ -22,12 +22,12 @@ export const NotificationDetailsPopup = ({
       onClose={() => setOpenDetailsPopup(false)}
       title="Detalhes da Notificação"
     >
+      <NotificationDetails notification={notificationInFocus} />
       <NotificationDetailsActions
         notification={notificationInFocus}
         refetch={refetch}
         onClose={() => setOpenDetailsPopup(false)}
       />
-      <NotificationDetails notification={notificationInFocus} />
     </BasePopup>
   );
 };
