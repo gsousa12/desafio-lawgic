@@ -1,18 +1,20 @@
+#!/bin/sh
 set -e
+
 echo "Aguarde a aplicação de migrações e seed no banco de dados..."
 
-echo "⏳ Aguardando PostgreQl..."
-while ! nc -z postgres 5432; do
+echo "⏳ Aguardando PostgreSQL..."
+while ! nc -z -w 1 postgres 5432; do
   sleep 1
 done
 echo "✅ Conectado com sucesso!"
 
 # Executar migrations
-echo "📦 Aguarde enquanto aplico as migrations..."
+echo "📦 Aplicando migrations..."
 pnpm prisma:deploy
 
 # Executar seed
-echo "🌱 Aplicando seed no banco de dados..."
+echo "🌱 Aplicando seed..."
 pnpm prisma:seed
 
 echo "🎯 Iniciando API..."
