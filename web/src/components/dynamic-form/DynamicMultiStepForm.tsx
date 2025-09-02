@@ -8,12 +8,7 @@ import { makeRHFZodResolver } from "@/common/utils/customResolver";
 import { makeZodSchema } from "@/features/notifications/schemas/create-notification.schema";
 import { useCreateNotificationStore } from "@/stores/notifications/notifications.store";
 import { useCallback, useEffect, useMemo } from "react";
-import {
-  FieldErrors,
-  FieldValues,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { Search } from "lucide-react";
 import styles from "./DynamicMultiStepForm.module.scss";
 import { Button } from "../Button/Button";
@@ -33,7 +28,7 @@ type DynamicMultiStepFormProps = {
   refetch: () => void;
 };
 
-export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
+export const DynamicMultiStepForm = ({
   stepKey,
   fields,
   locked,
@@ -45,8 +40,7 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
   onCancel,
   allowSubmitWhenLocked,
   onLockedPrimary,
-  refetch,
-}) => {
+}: DynamicMultiStepFormProps) => {
   const formFields = useMemo(() => {
     return Array.isArray(fields) ? fields : [];
   }, [fields]);
