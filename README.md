@@ -28,9 +28,9 @@ docker compose down -v
 
 O compose já executa as migrations e popula o banco com os usuários do tipo reviewer e notifier.
 
-# 🚨 Importante 🚨
+## 🚨 Importante 🚨
 
-Ao executar a seed ela cria: O schema do formulário de criação de notificação e os usuários.
+01 - Ao rodar o compose ele executa a seed que cria os usuário de acesso:
 
 #### Acesse o sistema com as credênciais de cada um
 
@@ -41,6 +41,8 @@ senha: 12345678
 Reviewer:
 email: reviewer@lawgic.com
 senha: 12345678
+
+02 - A API tem um interceptos que adiciona um delay aleatório a cada requisição. Fiz isso para exibir melhor os estados de loading.Você pode remover comentando a linha : app.useGlobalInterceptors(new RandomDelayInterceptor()) na main.ts da api.
 
 # Fluxo da aplicação
 
@@ -166,5 +168,18 @@ senha: 12345678
     - Editável em in_progress.
     - Não editável em validation (aguardando o Reviewer).
 - Essas regras são aplicadas tanto no front-end quanto no backend.
+
+---
+
+# Escolha técnica:
+
+## API
+Escolhi utilizar NestJs pois na entrevista foi informado que seria a escolha de framework para o ERP. Utilizei boa parte das features que o nest proporciona: Pipes, Guards,Exceptions, Decoratos, Interceptors... 
+
+## Web
+O Front foi feito como pedido pelo desafio: React + Scss
+
+## Arquitetura
+Tanto o front quanto o back foi organizado com separação clara de requisitos. A api divide a organização em domínios (que eu chamo de modules) onde cada dominio tem sua service,repository,dtos. O front tem o máximo de componentização possível, dentro do tempo do desafio foi o que deu para componentizar.
 
 ---
