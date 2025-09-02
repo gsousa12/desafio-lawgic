@@ -8,12 +8,7 @@ import { makeRHFZodResolver } from "@/common/utils/customResolver";
 import { makeZodSchema } from "@/features/notifications/schemas/create-notification.schema";
 import { useCreateNotificationStore } from "@/stores/notifications/notifications.store";
 import { useCallback, useEffect, useMemo } from "react";
-import {
-  FieldErrors,
-  FieldValues,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { Search } from "lucide-react";
 import styles from "./DynamicMultiStepForm.module.scss";
 import { Button } from "../Button/Button";
@@ -33,7 +28,7 @@ type DynamicMultiStepFormProps = {
   refetch: () => void;
 };
 
-export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
+export const DynamicMultiStepForm = ({
   stepKey,
   fields,
   locked,
@@ -45,35 +40,51 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
   onCancel,
   allowSubmitWhenLocked,
   onLockedPrimary,
-  refetch,
-}) => {
-  const safeFields = useMemo<FormField[]>(
-    () => (Array.isArray(fields) ? fields : []),
-    [fields]
+}: DynamicMultiStepFormProps) => {
+  const formFields = useMemo(() => {
+    return Array.isArray(fields) ? fields : [];
+  }, [fields]);
+
+  const formSchema = useMemo(() => makeZodSchema(formFields), [formFields]);
+  const formResolver = useMemo(
+    () => makeRHFZodResolver(formSchema),
+    [formSchema]
   );
 
-  const schema = useMemo(() => makeZodSchema(safeFields), [safeFields]);
-  const resolver = useMemo(() => makeRHFZodResolver(schema), [schema]);
+  const preparedDefaultValues = useMemo(() => {
+    const baseValues: Record<string, any> = {};
 
-  const computedDefaults = useMemo(() => {
-    const base: Record<string, any> = {};
-    for (const f of safeFields) base[f.id] = "";
+    formFields.forEach((field) => {
+      baseValues[field.id] = "";
+    });
+
     if (defaultValues) {
-      for (const f of safeFields) {
-        const v = (defaultValues as any)[f.id];
-        if (v == null) continue;
-        if (f.type === "date" && typeof v === "string")
-          base[f.id] = fromIsoZToLocalInput(v);
-        else if (f.id === "state" && typeof v === "string")
-          base[f.id] = v.toUpperCase();
-        else if (f.id === "phone" && typeof v === "string")
-          base[f.id] = maskPhone(v);
-        else if (f.type === "radio") base[f.id] = String(v);
-        else base[f.id] = v;
-      }
+      formFields.forEach((field) => {
+        const value = defaultValues[field.id];
+        if (value == null) return;
+
+        if (field.type === "date" && typeof value === "string") {
+          baseValues[field.id] = fromIsoZToLocalInput(value);
+        } else if (field.id === "state" && typeof value === "string") {
+          baseValues[field.id] = value.toUpperCase();
+        } else if (field.id === "phone" && typeof value === "string") {
+          baseValues[field.id] = maskPhone(value);
+        } else if (field.type === "radio") {
+          baseValues[field.id] = String(value);
+        } else {
+          baseValues[field.id] = value;
+        }
+      });
     }
-    return base;
-  }, [safeFields, defaultValues]);
+
+    return baseValues;
+  }, [formFields, defaultValues]);
+
+  const form = useForm<FieldValues>({
+    resolver: formResolver,
+    defaultValues: preparedDefaultValues,
+    mode: "onBlur",
+  });
 
   const {
     register,
@@ -84,130 +95,194 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
     setError,
     clearErrors,
     watch,
-  } = useForm<FieldValues>({
-    resolver,
-    defaultValues: computedDefaults,
-    mode: "onBlur",
-  });
+  } = form;
 
-  const setStep1Data = useCreateNotificationStore((s) => s.setStep1Data);
-  const setStep2Data = useCreateNotificationStore((s) => s.setStep2Data);
+  const setStep1Data = useCreateNotificationStore(
+    (state) => state.setStep1Data
+  );
+  const setStep2Data = useCreateNotificationStore(
+    (state) => state.setStep2Data
+  );
+  const cepLookupLoading = useCreateNotificationStore(
+    (state) => state.loading.cepLookup
+  );
+  const doCepLookup = useCreateNotificationStore((state) => state.lookupCep);
+
   useEffect(() => {
-    const sub = watch((vals) => {
-      if (stepKey === "CREATE_NOTIFICATION") setStep1Data(vals as any);
-      if (stepKey === "CREATE_NOTIFIED_PERSON") setStep2Data(vals as any);
+    const subscription = watch((formValues) => {
+      if (stepKey === "CREATE_NOTIFICATION") {
+        setStep1Data(formValues as any);
+      }
+      if (stepKey === "CREATE_NOTIFIED_PERSON") {
+        setStep2Data(formValues as any);
+      }
     });
-    return () => sub.unsubscribe();
+
+    return () => subscription.unsubscribe();
   }, [watch, stepKey, setStep1Data, setStep2Data]);
 
-  const cepLookupLoading = useCreateNotificationStore(
-    (s) => s.loading.cepLookup
-  );
-  const doCepLookup = useCreateNotificationStore((s) => s.lookupCep);
-
   const handleCepLookup = useCallback(async () => {
-    const rawCep = String(getValues("cep") ?? "");
-    const clean = onlyDigits(rawCep);
-    if (clean.length !== 8) {
-      setError("cep", { type: "manual", message: "CEP deve conter 8 dígitos" });
-      return;
-    }
-    clearErrors("cep");
-    try {
-      const data = await doCepLookup(clean);
-      const nextState = String(data.state || "").toUpperCase();
-      setValue("state", nextState, { shouldValidate: true, shouldDirty: true });
-      setValue("city", data.city || "", {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      setValue("neighborhood", data.neighborhood || "", {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      setValue("street", data.street || "", {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    } catch (e: any) {
+    const cepValue = String(getValues("cep") || "");
+    const cleanCep = onlyDigits(cepValue);
+
+    if (cleanCep.length !== 8) {
       setError("cep", {
         type: "manual",
-        message: e?.message || "Falha ao buscar CEP",
+        message: "CEP deve conter 8 dígitos",
+      });
+      return;
+    }
+
+    clearErrors("cep");
+
+    try {
+      const addressData = await doCepLookup(cleanCep);
+      const stateValue = String(addressData.state || "").toUpperCase();
+
+      setValue("state", stateValue, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue("city", addressData.city || "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue("neighborhood", addressData.neighborhood || "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue("street", addressData.street || "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    } catch (error: any) {
+      setError("cep", {
+        type: "manual",
+        message: error?.message || "Falha ao buscar CEP",
       });
     }
   }, [doCepLookup, getValues, setError, clearErrors, setValue]);
 
-  const renderField = (f: FormField, errs: FieldErrors<FieldValues>) => {
-    const reg = register(f.id);
-    const commonProps = {
-      id: f.id,
-      name: reg.name,
-      ref: reg.ref,
-      "aria-invalid": !!errs[f.id],
-      disabled: locked || !!loading,
+  const createCommonInputProps = (field: FormField, registration: any) => {
+    return {
+      id: field.id,
+      name: registration.name,
+      ref: registration.ref,
+      "aria-invalid": !!errors[field.id],
+      disabled: locked || loading,
       readOnly: locked,
-      className: f.type === "textarea" ? styles.textarea : styles.input,
-      placeholder: f.label,
-    } as const;
+      className: field.type === "textarea" ? styles.textarea : styles.input,
+      placeholder: field.label,
+    };
+  };
 
-    if (f.id === "cep") {
-      return (
-        <div className={styles.inputGroup}>
-          <input
-            type="text"
-            onChange={(e) => reg.onChange(e)}
-            {...commonProps}
-          />
-          <Button
-            type="button"
-            onClick={handleCepLookup}
-            disabled={locked || !!loading || cepLookupLoading}
-            title="Buscar CEP"
-            aria-label="Buscar CEP"
-          >
-            <Search />
-          </Button>
+  const renderCepField = (field: FormField, registration: any) => {
+    const commonProps = createCommonInputProps(field, registration);
+
+    return (
+      <div className={styles.inputGroup}>
+        <input type="text" onChange={registration.onChange} {...commonProps} />
+        <Button
+          type="button"
+          onClick={handleCepLookup}
+          disabled={locked || loading || cepLookupLoading}
+          title="Buscar CEP"
+          aria-label="Buscar CEP"
+        >
+          <Search />
+        </Button>
+      </div>
+    );
+  };
+
+  const renderStateField = (field: FormField, registration: any) => {
+    const commonProps = createCommonInputProps(field, registration);
+
+    return (
+      <input
+        type="text"
+        maxLength={2}
+        onChange={(event) => {
+          const uppercaseValue = event.target.value.toUpperCase().slice(0, 2);
+          setValue("state", uppercaseValue, {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+          registration.onChange({
+            ...event,
+            target: { ...event.target, value: uppercaseValue },
+          });
+        }}
+        {...commonProps}
+      />
+    );
+  };
+
+  const renderPhoneField = (field: FormField, registration: any) => {
+    const commonProps = createCommonInputProps(field, registration);
+
+    return (
+      <input
+        type="tel"
+        onChange={(event) => {
+          const maskedPhone = maskPhone(event.target.value);
+          setValue("phone", maskedPhone, {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+          registration.onChange({
+            ...event,
+            target: { ...event.target, value: maskedPhone },
+          });
+        }}
+        {...commonProps}
+      />
+    );
+  };
+
+  const renderRadioField = (field: FormField) => {
+    return (
+      <div className={styles.field}>
+        <div className={styles.label}>{field.label}</div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          {(field.options || []).map((option) => {
+            const optionValue = String(option.value);
+            const inputId = `${field.id}-${optionValue}`;
+
+            return (
+              <label
+                key={optionValue}
+                htmlFor={inputId}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <input
+                  id={inputId}
+                  type="radio"
+                  value={optionValue}
+                  disabled={locked || loading}
+                  {...register(field.id)}
+                />
+                <span>{option.label}</span>
+              </label>
+            );
+          })}
         </div>
-      );
-    }
+      </div>
+    );
+  };
 
-    if (f.id === "state") {
-      return (
-        <input
-          type="text"
-          maxLength={2}
-          onChange={(e) => {
-            const val = e.target.value.toUpperCase().slice(0, 2);
-            setValue("state", val, { shouldValidate: true, shouldDirty: true });
-            reg.onChange({ ...e, target: { ...e.target, value: val } });
-          }}
-          {...commonProps}
-        />
-      );
-    }
+  const renderDefaultField = (field: FormField, registration: any) => {
+    const commonProps = createCommonInputProps(field, registration);
 
-    if (f.id === "phone") {
-      return (
-        <input
-          type="tel"
-          onChange={(e) => {
-            const masked = maskPhone(e.target.value);
-            setValue("phone", masked, {
-              shouldValidate: true,
-              shouldDirty: true,
-            });
-            reg.onChange({ ...e, target: { ...e.target, value: masked } });
-          }}
-          {...commonProps}
-        />
-      );
-    }
-
-    switch (f.type) {
+    switch (field.type) {
       case "textarea":
         return (
           <textarea
-            onChange={(e) => reg.onChange(e)}
+            onChange={registration.onChange}
             style={{ resize: "none" }}
             {...commonProps}
           />
@@ -216,8 +291,8 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
       case "text":
         return (
           <input
-            type={f.type === "email" ? "email" : "text"}
-            onChange={(e) => reg.onChange(e)}
+            type={field.type === "email" ? "email" : "text"}
+            onChange={registration.onChange}
             {...commonProps}
           />
         );
@@ -225,76 +300,64 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
         return (
           <input
             type="datetime-local"
-            onChange={(e) => reg.onChange(e)}
+            onChange={registration.onChange}
             {...commonProps}
           />
-        );
-      case "radio":
-        return (
-          <div className={styles.field}>
-            <div className={styles.label}>{f.label}</div>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              {(f.options ?? []).map((opt) => {
-                const val = String(opt.value);
-                const inputId = `${f.id}-${val}`;
-                return (
-                  <label
-                    key={val}
-                    htmlFor={inputId}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <input
-                      id={inputId}
-                      type="radio"
-                      value={val}
-                      disabled={locked || !!loading}
-                      {...register(f.id)}
-                    />
-                    <span>{opt.label}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
         );
       default:
         return (
           <input
             type="text"
-            onChange={(e) => reg.onChange(e)}
+            onChange={registration.onChange}
             {...commonProps}
           />
         );
     }
   };
 
-  const submit: SubmitHandler<FieldValues> = async (vals) => {
-    await onSubmit({ ...vals });
+  const renderField = (field: FormField) => {
+    const registration = register(field.id);
+
+    if (field.id === "cep") {
+      return renderCepField(field, registration);
+    }
+    if (field.id === "state") {
+      return renderStateField(field, registration);
+    }
+    if (field.id === "phone") {
+      return renderPhoneField(field, registration);
+    }
+    if (field.type === "radio") {
+      return renderRadioField(field);
+    }
+    return renderDefaultField(field, registration);
   };
 
-  const showBack = stepKey === "CREATE_NOTIFIED_PERSON" && onBack;
-  const isLockedContinue = Boolean(locked && allowSubmitWhenLocked);
+  const handleFormSubmit: SubmitHandler<FieldValues> = async (formValues) => {
+    await onSubmit(formValues);
+  };
+
+  const isFormDisabled = loading || locked;
+  const shouldShowBackButton = stepKey === "CREATE_NOTIFIED_PERSON" && onBack;
+  const isInLockedContinueMode = locked && allowSubmitWhenLocked;
+  const hasNoFields = formFields.length === 0;
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit(submit)}>
-      {safeFields.length === 0 ? (
+    <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)}>
+      {hasNoFields ? (
         <p className={styles.helper}>Nenhum campo disponível.</p>
       ) : (
-        safeFields.map((f) => (
-          <div key={f.id} className={styles.field}>
-            {f.type !== "radio" && (
-              <label className={styles.label} htmlFor={f.id}>
-                {f.label} {f.required ? "*" : ""}
+        formFields.map((field) => (
+          <div key={field.id} className={styles.field}>
+            {field.type !== "radio" && (
+              <label className={styles.label} htmlFor={field.id}>
+                {field.label} {field.required ? "*" : ""}
               </label>
             )}
-            {renderField(f, errors)}
-            {errors[f.id]?.message && (
+            {renderField(field)}
+            {errors[field.id]?.message && (
               <span className={styles.error}>
-                {String((errors as any)[f.id]?.message)}
+                {String(errors[field.id]?.message)}
               </span>
             )}
           </div>
@@ -303,29 +366,27 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
 
       <div className={styles.actions}>
         {onCancel && (
-          <Button type="button" onClick={onCancel} disabled={!!loading}>
+          <Button type="button" onClick={onCancel} disabled={loading}>
             Limpar Formulário
           </Button>
         )}
-        {showBack && (
-          <Button type="button" onClick={onBack} disabled={!!loading}>
+
+        {shouldShowBackButton && (
+          <Button type="button" onClick={onBack} disabled={loading}>
             Voltar
           </Button>
         )}
 
-        {isLockedContinue ? (
+        {isInLockedContinueMode ? (
           <Button
             type="button"
             onClick={onLockedPrimary}
-            disabled={!!loading || safeFields.length === 0}
+            disabled={loading || hasNoFields}
           >
             {submitLabel}
           </Button>
         ) : (
-          <Button
-            type="submit"
-            disabled={!!loading || safeFields.length === 0 || !!locked}
-          >
+          <Button type="submit" disabled={isFormDisabled || hasNoFields}>
             {loading ? "Enviando..." : submitLabel}
           </Button>
         )}

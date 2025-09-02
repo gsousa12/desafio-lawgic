@@ -18,23 +18,23 @@ import { createJSONStorage, persist } from "zustand/middleware";
 type CreateNotificationStore = {
   step: 1 | 2;
   notificationId?: string;
+  finished: boolean;
 
   step1Data: Step1FormValues | null;
   step2Data: Step2FormValues | null;
 
   schemas: Schemas;
   loading: Loading;
-  finished: boolean;
 
-  setStep: (s: 1 | 2) => void;
+  setStep: (step: 1 | 2) => void;
   resetAll: () => void;
 
   loadSchema: (
     stepKey: "CREATE_NOTIFICATION" | "CREATE_NOTIFIED_PERSON"
   ) => Promise<void>;
 
-  setStep1Data: (partial: Partial<Step1FormValues>) => void;
-  setStep2Data: (partial: Partial<Step2FormValues>) => void;
+  setStep1Data: (data: Partial<Step1FormValues>) => void;
+  setStep2Data: (data: Partial<Step2FormValues>) => void;
 
   createNotification: (payload: Record<string, any>) => Promise<void>;
   assignPerson: (payload: Record<string, any>) => Promise<void>;
@@ -50,99 +50,203 @@ export const useCreateNotificationStore = create<CreateNotificationStore>()(
       step1Data: null,
       step2Data: null,
       schemas: {},
-      loading: { step1: false, step2: false, cepLookup: false },
+      loading: {
+        step1: false,
+        step2: false,
+        cepLookup: false,
+      },
       finished: false,
 
-      setStep: (s) => set({ step: s }),
+      setStep: (newStep) => {
+        set({ step: newStep });
+      },
 
-      resetAll: () =>
+      resetAll: () => {
         set({
           step: 1,
           notificationId: undefined,
           step1Data: null,
           step2Data: null,
           schemas: {},
-          loading: { step1: false, step2: false, cepLookup: false },
+          loading: {
+            step1: false,
+            step2: false,
+            cepLookup: false,
+          },
           finished: false,
-        }),
-
-      loadSchema: async (stepKey) => {
-        const key = stepKey === "CREATE_NOTIFICATION" ? "step1" : "step2";
-        const existing = get().schemas[key as keyof Schemas];
-        if (existing) return;
-        try {
-          const schema = await fetchSchema(stepKey);
-          set((s) => ({
-            schemas: {
-              ...s.schemas,
-              [key]: schema,
-            },
-          }));
-        } catch {}
+        });
       },
 
-      setStep1Data: (partial) =>
-        set((s) => ({ step1Data: { ...(s.step1Data ?? {}), ...partial } })),
+      loadSchema: async (stepKey) => {
+        const currentState = get();
 
-      setStep2Data: (partial) =>
-        set((s) => ({ step2Data: { ...(s.step2Data ?? {}), ...partial } })),
+        const schemaKey = stepKey === "CREATE_NOTIFICATION" ? "step1" : "step2";
 
-      createNotification: async (payload) => {
-        const schema = get().schemas.step1;
-        if (!schema) return;
+        const existingSchema = currentState.schemas[schemaKey as keyof Schemas];
+        if (existingSchema) {
+          return;
+        }
 
-        const prepared: Record<string, any> = { ...payload };
-        for (const f of schema.fields) {
-          if (f.type === "date" && prepared[f.id]) {
-            prepared[f.id] = toIsoZFromLocal(String(prepared[f.id]));
+        try {
+          const schema = await fetchSchema(stepKey);
+
+          const currentSchemas = get().schemas;
+          const newSchemas = {
+            ...currentSchemas,
+            [schemaKey]: schema,
+          };
+
+          set({ schemas: newSchemas });
+        } catch (error) {}
+      },
+
+      setStep1Data: (newData) => {
+        const currentState = get();
+        const currentStep1Data = currentState.step1Data || {};
+        const updatedStep1Data = {
+          ...currentStep1Data,
+          ...newData,
+        };
+
+        set({ step1Data: updatedStep1Data });
+      },
+
+      setStep2Data: (newData) => {
+        const currentState = get();
+        const currentStep2Data = currentState.step2Data || {};
+        const updatedStep2Data = {
+          ...currentStep2Data,
+          ...newData,
+        };
+
+        set({ step2Data: updatedStep2Data });
+      },
+
+      createNotification: async (formData) => {
+        const currentState = get();
+        const step1Schema = currentState.schemas.step1;
+
+        if (!step1Schema) {
+          return;
+        }
+
+        const preparedData: Record<string, any> = { ...formData };
+
+        for (const field of step1Schema.fields) {
+          if (field.type === "date" && preparedData[field.id]) {
+            const dateValue = String(preparedData[field.id]);
+            preparedData[field.id] = toIsoZFromLocal(dateValue);
           }
         }
 
-        set((s) => ({ loading: { ...s.loading, step1: true } }));
+        const currentLoading = get().loading;
+        set({
+          loading: {
+            ...currentLoading,
+            step1: true,
+          },
+        });
+
         try {
-          const res = await apiCreateNotification(prepared);
-          if (!res?.id) throw new Error("ID de notificação não retornado.");
+          const response = await apiCreateNotification(preparedData);
+
+          if (!response?.id) {
+            throw new Error("ID de notificação não retornado.");
+          }
+
           set({
-            notificationId: res.id,
-            step1Data: prepared as Step1FormValues,
+            notificationId: response.id,
+            step1Data: preparedData as Step1FormValues,
             step: 2,
           });
+
           await get().loadSchema("CREATE_NOTIFIED_PERSON");
         } finally {
-          set((s) => ({ loading: { ...s.loading, step1: false } }));
+          const finalLoading = get().loading;
+          set({
+            loading: {
+              ...finalLoading,
+              step1: false,
+            },
+          });
         }
       },
 
-      assignPerson: async (payload) => {
-        const { notificationId } = get();
-        if (!notificationId) return;
+      assignPerson: async (formData) => {
+        const currentState = get();
 
-        const prepared: Record<string, any> = { ...payload };
-        if (prepared.cep) prepared.cep = onlyDigits(String(prepared.cep));
-        if (prepared.phone) prepared.phone = onlyDigits(String(prepared.phone));
-        if (prepared.state)
-          prepared.state = String(prepared.state).toUpperCase();
+        if (!currentState.notificationId) {
+          return;
+        }
 
-        set((s) => ({ loading: { ...s.loading, step2: true } }));
+        const preparedData: Record<string, any> = { ...formData };
+
+        if (preparedData.cep) {
+          const cepValue = String(preparedData.cep);
+          preparedData.cep = onlyDigits(cepValue);
+        }
+
+        if (preparedData.phone) {
+          const phoneValue = String(preparedData.phone);
+          preparedData.phone = onlyDigits(phoneValue);
+        }
+
+        if (preparedData.state) {
+          const stateValue = String(preparedData.state);
+          preparedData.state = stateValue.toUpperCase();
+        }
+
+        const currentLoading = get().loading;
+        set({
+          loading: {
+            ...currentLoading,
+            step2: true,
+          },
+        });
+
         try {
-          const body = { notificationId, ...prepared };
-          await apiCreateNotifiedPerson(body);
+          const apiPayload = {
+            notificationId: currentState.notificationId,
+            ...preparedData,
+          };
+
+          await apiCreateNotifiedPerson(apiPayload);
+
           set({
-            step2Data: prepared as Step2FormValues,
+            step2Data: preparedData as Step2FormValues,
             finished: true,
           });
         } finally {
-          set((s) => ({ loading: { ...s.loading, step2: false } }));
+          const finalLoading = get().loading;
+          set({
+            loading: {
+              ...finalLoading,
+              step2: false,
+            },
+          });
         }
       },
 
       lookupCep: async (cep) => {
-        set((s) => ({ loading: { ...s.loading, cepLookup: true } }));
+        const currentLoading = get().loading;
+        set({
+          loading: {
+            ...currentLoading,
+            cepLookup: true,
+          },
+        });
+
         try {
-          const data = await lookupCepApi(cep);
-          return data;
+          const cepData = await lookupCepApi(cep);
+          return cepData;
         } finally {
-          set((s) => ({ loading: { ...s.loading, cepLookup: false } }));
+          const finalLoading = get().loading;
+          set({
+            loading: {
+              ...finalLoading,
+              cepLookup: false,
+            },
+          });
         }
       },
     }),

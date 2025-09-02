@@ -1,0 +1,14 @@
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: $primary-font;
+}

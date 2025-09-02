@@ -1,6 +1,6 @@
 import { NotificationDetails } from "@/components/notification-details/NotificationDetails";
 import { BasePopup } from "../base-popup/BasePopup";
-import { NotificationDetailsActions } from "@/components/notification-details-actions/NotificationDetailsActions";
+import { NotificationDetailsActions } from "@/components/notification-details/notification-details-actions/NotificationDetailsActions";
 import { Notification } from "@/components/tables/notifications-table/NotificationsTable";
 
 interface NotificationDetailsPopupProps {
@@ -22,12 +22,12 @@ export const NotificationDetailsPopup = ({
       onClose={() => setOpenDetailsPopup(false)}
       title="Detalhes da Notificação"
     >
+      <NotificationDetails notification={notificationInFocus} />
       <NotificationDetailsActions
         notification={notificationInFocus}
         refetch={refetch}
         onClose={() => setOpenDetailsPopup(false)}
       />
-      <NotificationDetails notification={notificationInFocus} />
     </BasePopup>
   );
 };

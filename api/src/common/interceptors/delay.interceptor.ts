@@ -10,7 +10,7 @@ import { delay } from 'rxjs/operators';
 @Injectable()
 export class RandomDelayInterceptor implements NestInterceptor {
   intercept(_: ExecutionContext, next: CallHandler): Observable<any> {
-    const randomDelay = Math.floor(Math.random() * 2000) + 1000;
+    const randomDelay = Math.floor(Math.random() * 1000) + 500;
     return next.handle().pipe(delay(randomDelay));
   }
 }
