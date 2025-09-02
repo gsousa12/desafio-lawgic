@@ -273,7 +273,6 @@ export const DynamicMultiStepForm: React.FC<DynamicMultiStepFormProps> = ({
   };
 
   const submit: SubmitHandler<FieldValues> = async (vals) => {
-    refetch();
     await onSubmit({ ...vals });
   };
 

@@ -2,11 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { INotificationsRepositoryInterface } from './interfaces/notifications-repository.interface';
 import { PrismaService } from 'src/database/modules/service/prisma.service';
 import { CreateNotificationRequestDTO } from '../dtos/request/create.dto';
-import { NotificationStatus, UserRole } from 'src/common/utils/enums';
+import {
+  NotificationStatus,
+  NotificatioReviewAction,
+  UserRole,
+} from 'src/common/utils/enums';
 import { NotificationEntity } from 'src/common/types/entities';
 import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
 import { NotifiedPersonEntity } from 'src/common/types/entities/person.entity';
-import { Meta } from 'src/common/types/api/api.types';
+import { JwtPayload, Meta } from 'src/common/types/api/api.types';
+import { ReviewNotificationRequestDTO } from '../dtos/request/review.dto';
 
 @Injectable()
 export class NotificationsRepository
@@ -102,8 +107,9 @@ export class NotificationsRepository
     }
 
     if (filters.userRole === UserRole.Reviewer) {
-      // whereClause.reviewerId = filters.userId;
-      whereClause.status = NotificationStatus.Validation;
+      whereClause.status = {
+        in: [NotificationStatus.Validation, NotificationStatus.Completed],
+      };
     }
 
     const [totalCount, notifications] = await this.db.$transaction([
@@ -130,5 +136,44 @@ export class NotificationsRepository
       },
       data: notifications,
     };
+  }
+
+  async review(
+    request: ReviewNotificationRequestDTO,
+    user: JwtPayload,
+  ): Promise<void> {
+    if (request.action === 'approve') {
+      await this.db.notification.update({
+        data: {
+          status: NotificationStatus.Completed,
+          reviewerId: user.userId,
+        },
+        where: {
+          id: request.notificationId,
+        },
+      });
+    }
+    if (request.action === 'back') {
+      await this.db.notification.update({
+        data: {
+          status: NotificationStatus.InProgress,
+          reviewerId: user.userId,
+        },
+        where: {
+          id: request.notificationId,
+        },
+      });
+    }
+
+    if (request.action === 'validate') {
+      await this.db.notification.update({
+        data: {
+          status: NotificationStatus.Validation,
+        },
+        where: {
+          id: request.notificationId,
+        },
+      });
+    }
   }
 }

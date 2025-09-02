@@ -17,6 +17,7 @@ import { JwtPayload, Meta } from 'src/common/types/api/api.types';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
 import { NotificationEntity } from 'src/common/types/entities';
+import { ReviewNotificationRequestDTO } from '../dtos/request/review.dto';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -63,5 +64,16 @@ export class NotificationsController {
     };
     const result = await this.notificationsService.getAll(filters);
     return result;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/review')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseMessage('Notificação revisada com sucesso')
+  async review(
+    @Body() request: ReviewNotificationRequestDTO,
+    @User() user: JwtPayload,
+  ): Promise<any> {
+    return await this.notificationsService.review(request, user);
   }
 }

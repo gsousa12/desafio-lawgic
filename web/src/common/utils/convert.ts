@@ -35,22 +35,24 @@ export function getUserRoleLabel(role: string | undefined) {
 }
 
 /**
- * Converte uma string de data no formato ISO para o formato de data brasileiro (dd/MM/yyyy).
- * @param dateString A data em formato de string (ex: "2025-08-31T01:49:44.958Z").
- * @returns A data formatada como "dd/MM/yyyy" ou uma string vazia se a entrada for inválida.
+ * Converte uma string de data no formato ISO (UTC) para o formato de data e hora brasileiro.
+ * @param dateString A data em formato de string ISO (ex: "2025-10-23T13:00:00.000Z").
+ * @returns A data e hora formatada como "dd/MM/yyyy, HH:mm:ss" (ex: "23/10/2025, 10:00:00")
+ * para o fuso de São Paulo, ou uma string vazia se a entrada for inválida.
  */
 export function convertDateToPtBr(dateString: string): string {
   if (!dateString) {
     return "";
   }
+
   const date = new Date(dateString);
 
   if (isNaN(date.getTime())) {
     return "";
   }
 
-  return date.toLocaleDateString("pt-BR", {
-    timeZone: "UTC",
+  return date.toLocaleString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
   });
 }
 

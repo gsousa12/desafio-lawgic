@@ -7,12 +7,14 @@ interface NotificationDetailsPopupProps {
   openDetailsPopup: boolean;
   setOpenDetailsPopup: (open: boolean) => void;
   notificationInFocus: Notification;
+  refetch: () => void;
 }
 
 export const NotificationDetailsPopup = ({
   notificationInFocus,
   openDetailsPopup,
   setOpenDetailsPopup,
+  refetch,
 }: NotificationDetailsPopupProps) => {
   return (
     <BasePopup
@@ -20,8 +22,12 @@ export const NotificationDetailsPopup = ({
       onClose={() => setOpenDetailsPopup(false)}
       title="Detalhes da Notificação"
     >
+      <NotificationDetailsActions
+        notification={notificationInFocus}
+        refetch={refetch}
+        onClose={() => setOpenDetailsPopup(false)}
+      />
       <NotificationDetails notification={notificationInFocus} />
-      <NotificationDetailsActions />
     </BasePopup>
   );
 };

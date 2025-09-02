@@ -9,3 +9,8 @@ export enum NotificationStatus {
   Validation = 'validation',
   Completed = 'completed',
 }
+
+export enum NotificatioReviewAction {
+  Approve = 'approve',
+  Back = 'back',
+}

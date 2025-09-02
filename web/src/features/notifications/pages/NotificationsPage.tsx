@@ -45,7 +45,10 @@ export const NotificationsPage = () => {
           </Button>
         </div>
       </header>
-      <NotificationsTable data={notifications ?? []} />
+      <NotificationsTable
+        data={notifications ?? []}
+        refetch={() => handleRefetchPage()}
+      />
       <Pagination meta={meta} page={page} onPageChange={goToPage} />
       <CreateNotificationPopup
         refetch={handleRefetchPage}

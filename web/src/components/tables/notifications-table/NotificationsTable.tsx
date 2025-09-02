@@ -22,9 +22,13 @@ export type Notification = {
 
 type NotificationsTableProps = {
   data: Notification[];
+  refetch: () => void;
 };
 
-export const NotificationsTable = ({ data }: NotificationsTableProps) => {
+export const NotificationsTable = ({
+  data,
+  refetch,
+}: NotificationsTableProps) => {
   const [openDetailsPopup, setOpenDetailsPopup] = useState<boolean>(false);
   const [notificationInFocus, setNotificationInFocus] = useState<Notification>(
     data[0]
@@ -63,8 +67,8 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
               return (
                 <motion.tr
                   key={notification.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   transition={{
                     duration: 0.3,
                     ease: "easeOut",
@@ -104,7 +108,9 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                     <button
                       type="button"
                       className={
-                        notification.status !== "validation"
+                        !["validation", "completed"].includes(
+                          notification.status
+                        )
                           ? styles.iconBtn
                           : styles.disableIconBtn
                       }
@@ -113,7 +119,10 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
                           ? "Editar"
                           : "Notificações em validação não podem ser editadas"
                       }
-                      disabled={notification.status === "validation"}
+                      disabled={
+                        notification.status === "validation" ||
+                        notification.status === "completed"
+                      }
                       onClick={() => alert("Editar")}
                     >
                       <Pencil />
@@ -129,6 +138,7 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
         openDetailsPopup={openDetailsPopup}
         notificationInFocus={notificationInFocus}
         setOpenDetailsPopup={setOpenDetailsPopup}
+        refetch={refetch}
       />
     </div>
   );
