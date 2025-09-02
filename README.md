@@ -180,18 +180,38 @@ senha: 12345678
 
 ---
 
-# Escolha técnica:
+# Escolhas Técnicas
 
-## API
+## Backend (API)
+NestJS foi escolhido por sua arquitetura modular e escalável, alinhada com a informação passada na entrevista de que seria a stack do ERP. A aplicação está organizada em módulos/domínios (auth, users, notifications, forms), cada um com sua camada de controller, service, repository e DTOs.
 
-Escolhi utilizar NestJs pois na entrevista foi informado que seria a escolha de framework para o ERP. Utilizei boa parte das features que o nest proporciona: Pipes, Guards,Exceptions, Decoratos, Interceptors...
+**Principais características:**
+- Autenticação JWT com Passport
+- Prisma ORM para acesso ao banco PostgreSQL
+- Validação de dados com class-validator e class-transformer
+- Tratamento global de exceções com filters customizados
+- Interceptors para formatação de responses
+- Pipes para validação e transformação de dados
+- Interfaces para desacoplamento entre camadas
 
-## Web
+## Frontend (Web)
+React com TypeScript e SASS modules, seguindo uma arquitetura componentizada e baseada em features.
 
-O Front foi feito como pedido pelo desafio: React + Scss
+**Principais características:**
+- Gerenciamento de estado com Zustand
+- Data fetching com React Query
+- Formulários com React Hook Form + Zod para validação schema-based
+- Roteamento com React Router Dom
+- Componentização avançada com composição pattern
+- Hooks controller para separar lógica de ui.
+- Design system incipiente com componentes Button, TextInput, etc.
 
-## Arquitetura
+## Infraestrutura & Ferramentas
+- Containerização Docker para ambos os projetos
+- PNPM como gerenciador de pacotes
+- ESLint e Prettier para padronização de código
+- Vite como build tool para desenvolvimento ágil
 
-Tanto o front quanto o back foi organizado com separação clara de requisitos. A api divide a organização em domínios (que eu chamo de modules) onde cada dominio tem sua service,repository,dtos. O front tem o máximo de componentização possível, dentro do tempo do desafio foi o que deu para componentizar.
+A arquitetura prioriza separation of concerns, testabilidade e manutenibilidade, seguindo boas práticas de desenvolvimento moderno.
+Os princípios forão implementados na medida do possível dentro do que eu me propus a fazer e o tempo que tinha disponível.
 
----
