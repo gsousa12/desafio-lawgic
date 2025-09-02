@@ -180,7 +180,7 @@ export const DynamicMultiStepForm = ({
     const commonProps = createCommonInputProps(field, registration);
 
     return (
-      <div className={styles.inputGroup}>
+      <div className={styles.cepField}>
         <input type="text" onChange={registration.onChange} {...commonProps} />
         <Button
           type="button"
@@ -188,6 +188,7 @@ export const DynamicMultiStepForm = ({
           disabled={locked || loading || cepLookupLoading}
           title="Buscar CEP"
           aria-label="Buscar CEP"
+          className={styles.searchBtn}
         >
           <Search />
         </Button>

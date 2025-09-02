@@ -4,11 +4,9 @@ $primary-font: #d4d4d8;
 .globalWrapper {
   height: 100vh;
   overflow: hidden;
-
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr;
-
   background-color: $primary-background;
   color: $primary-font;
 }
@@ -21,4 +19,13 @@ $primary-font: #d4d4d8;
 .mobile {
   padding: 0;
   gap: 0.5rem;
+}
+
+// Nova classe para quando não está autenticado
+.notAuthenticated {
+  padding: 0 !important;
+  gap: 0 !important;
+
+  // Remove o layout de grid quando não autenticado
+  display: block !important;
 }

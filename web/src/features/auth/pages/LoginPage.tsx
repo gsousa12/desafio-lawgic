@@ -36,7 +36,9 @@ export const LoginPage = () => {
         {!isMobile && (
           <div
             className={styles.left}
-            style={{ backgroundImage: `url(${leftImageSrc})` }}
+            style={{
+              backgroundImage: `url(${leftImageSrc})`,
+            }}
             aria-hidden
           />
         )}

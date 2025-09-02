@@ -1,4 +1,3 @@
-/* Paleta */
 $primary-color: #6366f1;
 $primary-font: #d4d4d8;
 $primary-background: #0f1115;
@@ -6,7 +5,6 @@ $secondary-color: #3730a3;
 $secondary-font: #6f6f6f;
 $secondary-background: #141821;
 
-/* Contêiner compacto para uso dentro do popup */
 .container {
   display: flex;
   flex-direction: column;
@@ -14,7 +12,6 @@ $secondary-background: #141821;
   color: $primary-font;
 }
 
-/* Stepper compacto (2 passos por enquanto, mas extensível) */
 .stepper {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -63,7 +60,6 @@ $secondary-background: #141821;
   opacity: 0.6;
 }
 
-/* Área do conteúdo */
 .content {
   background: $secondary-background;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -71,7 +67,6 @@ $secondary-background: #141821;
   padding: 12px;
 }
 
-/* Form básico */
 .form {
   display: grid;
   grid-template-columns: 1fr;
@@ -124,7 +119,6 @@ $secondary-background: #141821;
   margin-top: 6px;
 }
 
-/* Botões */
 .btn {
   height: 36px;
   padding: 0 14px;
@@ -168,8 +162,23 @@ $secondary-background: #141821;
   color: $secondary-font;
 }
 
-/* Erros do RHF/Zod */
 .error {
   color: #fca5a5;
   font-size: 0.8rem;
+}
+
+.cepField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.searchBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  min-width: 40px;
+  padding: 0 10px;
 }
