@@ -11,6 +11,12 @@
 docker compose up --build -d
 ```
 
+ou
+
+```bash
+docker compose -f "docker-compose.yaml" up -d --build
+```
+
 3. Acessos
 
 - API: [http://localhost:3000](http://localhost:3000/)
@@ -20,8 +26,8 @@ docker compose up --build -d
 4. Parar/limpar
 
 ```bash
-docker compose down        
-docker compose down -v     
+docker compose down
+docker compose down -v
 ```
 
 #### Migrations e Seed
@@ -47,8 +53,8 @@ senha: 12345678
 # Fluxo da aplicação
 
 - A aplicação possui duas entidades principais:
-    - Notifier: usuário autorizado a criar e editar notificações.
-    - Reviewer: usuário autorizado a validar (aprovar ou devolver para edição) notificações.
+  - Notifier: usuário autorizado a criar e editar notificações.
+  - Reviewer: usuário autorizado a validar (aprovar ou devolver para edição) notificações.
 - O formulário de criação é multietapas (multi-step) e é construído dinamicamente a partir de um JSON Schema fornecido pelo backend.
 - O estado do formulário e da notificação é armazenado em cache (Zustand), permitindo sair e retomar o fluxo sem perda de progresso.
 
@@ -59,14 +65,15 @@ senha: 12345678
 ### Papéis e Permissões
 
 - Notifier
-    - Pode criar uma notificação.
-    - Pode editar enquanto a notificação estiver em in_progress.
-    - Pode enviar para validação quando houver uma pessoa notificada atribuída.
+  - Pode criar uma notificação.
+  - Pode editar enquanto a notificação estiver em in_progress.
+  - Pode enviar para validação quando houver uma pessoa notificada atribuída.
 - Reviewer
-    - Pode validar notificações em validation.
-    - Pode aprovar ou devolver para edição (retornar o status para in_progress).
+  - Pode validar notificações em validation.
+  - Pode aprovar ou devolver para edição (retornar o status para in_progress).
 - Admin
-    - Existe esse user role porém não foi implementado 100%
+  - Existe esse user role porém não foi implementado 100%
+
 ---
 
 ### Criação e Edição (Notifier)
@@ -75,33 +82,35 @@ senha: 12345678
 
 - Ao clicar em “Criar notificação”, é aberto um popup/modal.
 - Na montagem do modal, o front faz uma requisição para obter o schema do formulário:
-    - Endpoint: `/api/forms/CREATE_NOTIFICATION`
-    - Retorno: JSON Schema com a definição dinâmica dos campos da primeira etapa.
+  - Endpoint: `/api/forms/CREATE_NOTIFICATION`
+  - Retorno: JSON Schema com a definição dinâmica dos campos da primeira etapa.
 
 2. Renderização dinâmica do formulário
 
 - Com base no schema retornado, o componente `DynamicMultiStepForm` (src/components/dynamic-form) monta o formulário multistep.
 - Primeira etapa: preenchimento dos metadados principais da notificação:
-    - Title
-    - Description
-    - hearingDate
+  - Title
+  - Description
+  - hearingDate
 
 3. Persistência inicial e controle de estado
 
 - Ao enviar a primeira etapa, o front chama:
-    - Endpoint: `/api/notifications/`
-    - Retorno: `notificationId`
+  - Endpoint: `/api/notifications/`
+  - Retorno: `notificationId`
 - O front armazena:
-    - Todo o estado do formulário.
-    - O `notificationId` retornado (será usado na segunda etapa).
+
+  - Todo o estado do formulário.
+  - O `notificationId` retornado (será usado na segunda etapa).
 
 - Nesse momento, a notificação é criada com status in_progress.
 - Como o estado está em cache (Zustand), é possível fechar o popup e retomar a criação/edição depois, sem perder informações.
 
 4. Atribuição da pessoa notificada (segunda etapa)
 
-- O front cham endpoint:Endpoint: `/api/forms/CREATE_NOTIFIED_PERSON` 
-	- Monta a segunda parte do formulário com base no schema retornado
+- O front cham endpoint:Endpoint: `/api/forms/CREATE_NOTIFIED_PERSON`
+
+  - Monta a segunda parte do formulário com base no schema retornado
 
 - Ainda em in_progress, o Notifier deve atribuir a pessoa notificada (NotifiedPerson) à notificação.
 - Somente após essa atribuição a notificação pode seguir para validação.
@@ -117,47 +126,47 @@ senha: 12345678
 ### Validação (Reviewer)
 
 - Ao acessar os detalhes de uma notificação com status validation, o Reviewer vê duas ações:
-    - Aprovar
-        - A notificação é aprovada (status final).
-    - Voltar para edição
-        - A notificação retorna para o Notifier com status in_progress, permitindo ajustes e um novo envio para validação.
+  - Aprovar
+    - A notificação é aprovada (status final).
+  - Voltar para edição
+    - A notificação retorna para o Notifier com status in_progress, permitindo ajustes e um novo envio para validação.
 
 ---
 
 ### Estados da Notificação
 
 - in_progress
-    - Notificação em criação/edição pelo Notifier.
-    - Edição habilitada.
-    - Ainda não pode ser validada se não houver NotifiedPerson atribuída.
+  - Notificação em criação/edição pelo Notifier.
+  - Edição habilitada.
+  - Ainda não pode ser validada se não houver NotifiedPerson atribuída.
 - validation
-    - Notificação aguardando ação do Reviewer.
-    - Edição desabilitada no front para o Notifier.
+  - Notificação aguardando ação do Reviewer.
+  - Edição desabilitada no front para o Notifier.
 - completed (após ação de “Aprovar”)
-    - Fluxo concluído.
+  - Fluxo concluído.
 
 ---
 
 ### Endpoints Envolvidos
 
 - `/api/forms/CREATE_NOTIFICATION`
-    - Retorna o JSON Schema usado para montar a primeira etapa do formulário dinâmico.
+  - Retorna o JSON Schema usado para montar a primeira etapa do formulário dinâmico.
 - `/api/forms/CREATE_NOTIFIED_PERSON`
-    - Retorna o JSON Schema usado para montar a segunda etapa do formulário dinâmico.
+  - Retorna o JSON Schema usado para montar a segunda etapa do formulário dinâmico.
 - `/api/notifications/`
-    - Cria a notificação inicial (retorna `notificationId`) e recebe atualizações conforme as etapas avançam.
+  - Cria a notificação inicial (retorna `notificationId`) e recebe atualizações conforme as etapas avançam.
 - `/api/notifications/person`
-    - Cria a pessoal a ser notificada
+  - Cria a pessoal a ser notificada
 
 ---
 
 ### Componentes de Front-end
 
 - `DynamicMultiStepForm` (src/components/dynamic-form)
-    - Constrói e exibe o formulário multistep dinamicamente a partir do JSON Schema recebido do backend.
+  - Constrói e exibe o formulário multistep dinamicamente a partir do JSON Schema recebido do backend.
 - Store de estado (Zustand)
-    - Mantém em cache o estado do formulário e da notificação.
-    - Permite retomar o fluxo ao reabrir o modal, sem perda de dados.
+  - Mantém em cache o estado do formulário e da notificação.
+  - Permite retomar o fluxo ao reabrir o modal, sem perda de dados.
 
 ---
 
@@ -165,8 +174,8 @@ senha: 12345678
 
 - Regras de habilitação de botões e ações baseadas no papel (Notifier vs Reviewer) e no estado da notificação.
 - Restrições de edição:
-    - Editável em in_progress.
-    - Não editável em validation (aguardando o Reviewer).
+  - Editável em in_progress.
+  - Não editável em validation (aguardando o Reviewer).
 - Essas regras são aplicadas tanto no front-end quanto no backend.
 
 ---
@@ -174,12 +183,15 @@ senha: 12345678
 # Escolha técnica:
 
 ## API
-Escolhi utilizar NestJs pois na entrevista foi informado que seria a escolha de framework para o ERP. Utilizei boa parte das features que o nest proporciona: Pipes, Guards,Exceptions, Decoratos, Interceptors... 
+
+Escolhi utilizar NestJs pois na entrevista foi informado que seria a escolha de framework para o ERP. Utilizei boa parte das features que o nest proporciona: Pipes, Guards,Exceptions, Decoratos, Interceptors...
 
 ## Web
+
 O Front foi feito como pedido pelo desafio: React + Scss
 
 ## Arquitetura
+
 Tanto o front quanto o back foi organizado com separação clara de requisitos. A api divide a organização em domínios (que eu chamo de modules) onde cada dominio tem sua service,repository,dtos. O front tem o máximo de componentização possível, dentro do tempo do desafio foi o que deu para componentizar.
 
 ---
