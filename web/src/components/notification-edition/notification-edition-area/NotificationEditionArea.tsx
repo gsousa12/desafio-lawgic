@@ -3,6 +3,7 @@ import type { Notification } from "@/components/tables/notifications-table/Notif
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toLocalInput } from "@/common/utils/convert";
 
 interface NotificationEditionAreaProps {
   notification: Notification;
@@ -42,19 +43,6 @@ const NotificationEditSchema = z.object({
 
 type NotificationEditForm = z.infer<typeof NotificationEditSchema>;
 
-const toLocalInput = (iso?: string | null) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  const mm = pad(d.getMonth() + 1);
-  const dd = pad(d.getDate());
-  const hh = pad(d.getHours());
-  const mi = pad(d.getMinutes());
-  return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
-};
-
 export const NotificationEditionArea = ({
   notification,
 }: NotificationEditionAreaProps) => {
@@ -69,6 +57,7 @@ export const NotificationEditionArea = ({
 
   const phTitle = notification?.title ?? "";
   const phDescription = notification?.description ?? "";
+  console.log(notification?.hearingDate);
   const phHearing = toLocalInput(notification?.hearingDate);
 
   const onSubmit = (_data: NotificationEditForm) => {
@@ -125,7 +114,7 @@ export const NotificationEditionArea = ({
         <input
           id="hearingDate"
           type="datetime-local"
-          placeholder={phHearing}
+          defaultValue={phHearing}
           className={styles.input}
           {...register("hearingDate")}
         />

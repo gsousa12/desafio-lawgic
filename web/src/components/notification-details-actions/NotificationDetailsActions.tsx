@@ -102,7 +102,7 @@ export const NotificationDetailsActions = ({
       {canSendToAnalysis && hasNotifiedPerson && (
         <Button type="button" onClick={handleSendToAnalysis}>
           <Send size={16} />
-          <span>Enviar para análise</span>
+          <span>Enviar para Validação</span>
         </Button>
       )}
       {isPending && <Loader />}
