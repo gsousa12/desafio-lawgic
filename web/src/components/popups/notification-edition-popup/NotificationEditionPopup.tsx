@@ -21,7 +21,11 @@ export const NotificationEditionPopup = ({
       onClose={() => setOpenEditionPopup(false)}
       title="Edição de Notificação"
     >
-      <NotificationEdition notification={notificationInFocus} />
+      <NotificationEdition
+        notification={notificationInFocus}
+        onClose={() => setOpenEditionPopup(false)}
+        refetch={refetch}
+      />
     </BasePopup>
   );
 };

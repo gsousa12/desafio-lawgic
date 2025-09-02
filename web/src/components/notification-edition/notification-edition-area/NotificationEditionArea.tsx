@@ -5,9 +5,16 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toLocalInput } from "@/common/utils/convert";
 import { api } from "@/api/axios";
+import { useApiMutation } from "@/api/dispatchs/hooks";
+import { Loader } from "@/components/loader/Loader";
+import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
+import { useState } from "react";
+import { CircleX } from "lucide-react";
 
 interface NotificationEditionAreaProps {
   notification: Notification;
+  onClose: () => void;
+  refetch: () => void;
 }
 
 const editableStr = (
@@ -22,8 +29,14 @@ const editableStr = (
       z
         .string()
         .trim()
-        .min(min, msgMin ?? `Mín. ${min}`)
-        .max(max, msgMax ?? `Máx. ${max}`),
+        .min(
+          min,
+          msgMin ?? `O campo title deve ter no mínimo ${min} caracteres `
+        )
+        .max(
+          max,
+          msgMax ?? `O campo title deve ter no máximo ${max} caracteres. `
+        ),
     ])
     .optional();
 
@@ -46,6 +59,8 @@ type NotificationEditForm = z.infer<typeof NotificationEditSchema>;
 
 export const NotificationEditionArea = ({
   notification,
+  onClose,
+  refetch,
 }: NotificationEditionAreaProps) => {
   const {
     register,
@@ -53,15 +68,54 @@ export const NotificationEditionArea = ({
     formState: { errors, isSubmitting },
   } = useForm<NotificationEditForm>({
     resolver: zodResolver(NotificationEditSchema),
-    defaultValues: {},
+    defaultValues: {
+      title: undefined,
+      description: undefined,
+    },
   });
 
   const phTitle = notification?.title ?? "";
   const phDescription = notification?.description ?? "";
   const phHearing = toLocalInput(notification?.hearingDate);
+  const [openAlertPopup, setOpenAlertPopup] = useState<boolean>(false);
 
-  const onSubmit = (data: NotificationEditForm) => {
-    // handleSubmitData(data);
+  const handleRefetchPage = () => {
+    setOpenAlertPopup(false);
+    refetch();
+  };
+
+  type SubmitPersonEditionRequest = Pick<
+    NotificationEditForm,
+    "title" | "description" | "hearingDate"
+  > & {
+    notificationId: string;
+  };
+  const {
+    mutateAsync: submitPersonEdition,
+    isPending,
+    isError,
+    error,
+  } = useApiMutation<any, SubmitPersonEditionRequest>((data) =>
+    api.put("/notifications/notification", data)
+  );
+
+  const onSubmit = async (data: NotificationEditForm) => {
+    const request: SubmitPersonEditionRequest = {
+      notificationId: notification.id,
+      title: data.title || undefined,
+      description: data.description || undefined,
+      hearingDate: data.hearingDate
+        ? new Date(data.hearingDate).toISOString()
+        : undefined,
+    };
+    try {
+      await submitPersonEdition(request);
+      setOpenAlertPopup(true);
+      refetch();
+      onClose();
+    } catch (error) {
+      setOpenAlertPopup(true);
+    }
   };
 
   return (
@@ -101,7 +155,7 @@ export const NotificationEditionArea = ({
 
       <div className={styles.row}>
         <label className={styles.label} htmlFor="hearingDate">
-          Audiência
+          Data da Audiência
         </label>
         <input
           id="hearingDate"
@@ -124,6 +178,17 @@ export const NotificationEditionArea = ({
           Salvar
         </button>
       </div>
+      {isPending && <Loader />}
+      {isError && (
+        <AlertPopup
+          open={openAlertPopup}
+          title="Erro ao editar notificação"
+          description={error?.message}
+          icon={<CircleX />}
+          confirmLabel="Ok"
+          onConfirm={() => handleRefetchPage()}
+        />
+      )}
     </form>
   );
 };

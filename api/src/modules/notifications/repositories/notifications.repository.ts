@@ -84,9 +84,9 @@ export class NotificationsRepository
   async getPersonByNotificationId(
     notificationId: string,
   ): Promise<NotifiedPersonEntity | null> {
-    return this.db.notifiedPerson.findFirst({
+    return await this.db.notifiedPerson.findFirst({
       where: {
-        notificationId,
+        notificationId: notificationId,
       },
     });
   }

@@ -1,13 +1,14 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import styles from "./PersonEditionArea.module.scss";
 import type { Notification } from "@/components/tables/notifications-table/NotificationsTable";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-interface PersonEditionAreaProps {
-  notification: Notification;
-}
+import { useApiMutation } from "@/api/dispatchs/hooks";
+import { api } from "@/api/axios";
+import { Loader } from "@/components/loader/Loader";
+import { AlertPopup } from "@/components/popups/alert-popup/AlertPopup";
+import { CircleX } from "lucide-react";
 
 const editableStr = (
   min: number,
@@ -65,8 +66,16 @@ const PersonEditSchema = z.object({
 });
 
 type PersonEditForm = z.infer<typeof PersonEditSchema>;
-
-export const PersonEditionArea = ({ notification }: PersonEditionAreaProps) => {
+interface PersonEditionAreaProps {
+  notification: Notification;
+  onClose: () => void;
+  refetch: () => void;
+}
+export const PersonEditionArea = ({
+  notification,
+  onClose,
+  refetch,
+}: PersonEditionAreaProps) => {
   const notified = useMemo(() => {
     const np: any = (notification as any)?.notifiedPerson;
     if (!np) return undefined;
@@ -94,19 +103,43 @@ export const PersonEditionArea = ({ notification }: PersonEditionAreaProps) => {
     street: notified?.street ?? "",
   };
 
-  const onSubmit = (_data: PersonEditForm) => {
-    // Função vazia por enquanto
-    // Exemplo de normalização quando integrar:
-    // const payload = {
-    //   ...(data.name && data.name !== "" ? { name: data.name } : {}),
-    //   ...(data.email && data.email !== "" ? { email: data.email } : {}),
-    //   ...(data.phone && data.phone !== "" ? { phone: data.phone } : {}),
-    //   ...(data.cep && data.cep !== "" ? { cep: data.cep.replace(/\D+/g, "") } : {}),
-    //   ...(data.state && data.state !== "" ? { state: data.state.toUpperCase() } : {}),
-    //   ...(data.city && data.city !== "" ? { city: data.city } : {}),
-    //   ...(data.neighborhood && data.neighborhood !== "" ? { neighborhood: data.neighborhood } : {}),
-    //   ...(data.street && data.street !== "" ? { street: data.street } : {}),
-    // };
+  const handleRefetchPage = () => {
+    setOpenAlertPopup(false);
+    refetch();
+  };
+
+  const [openAlertPopup, setOpenAlertPopup] = useState<boolean>(false);
+  const {
+    mutateAsync: submitPersonEdition,
+    isPending,
+    isError,
+    error,
+  } = useApiMutation<any, PersonEditFormRequest>((data) =>
+    api.put("/notifications/person", data)
+  );
+  type PersonEditFormRequest = PersonEditForm & {
+    notificationId: string;
+  };
+  const onSubmit = async (data: PersonEditForm) => {
+    const request: PersonEditFormRequest = {
+      notificationId: notification.id,
+      name: data.name || undefined,
+      email: data.email || undefined,
+      phone: data.phone || undefined,
+      cep: data.cep || undefined,
+      state: data.state || undefined,
+      city: data.city || undefined,
+      neighborhood: data.neighborhood || undefined,
+      street: data.street || undefined,
+    };
+    try {
+      await submitPersonEdition(request);
+      setOpenAlertPopup(true);
+      onClose();
+      refetch();
+    } catch (err) {
+      setOpenAlertPopup(true);
+    }
   };
 
   return (
@@ -250,6 +283,17 @@ export const PersonEditionArea = ({ notification }: PersonEditionAreaProps) => {
           Salvar
         </button>
       </div>
+      {isPending && <Loader />}
+      {isError && (
+        <AlertPopup
+          open={openAlertPopup}
+          title="Erro ao editar notificado"
+          description={error?.message}
+          icon={<CircleX />}
+          confirmLabel="Ok"
+          onConfirm={() => handleRefetchPage()}
+        />
+      )}
     </form>
   );
 };

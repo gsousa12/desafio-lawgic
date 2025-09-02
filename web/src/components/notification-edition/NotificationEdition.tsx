@@ -6,10 +6,14 @@ import { Tabs } from "../tabs/Tabs";
 
 interface NotificationEditionProps {
   notification: Notification;
+  onClose: () => void;
+  refetch: () => void;
 }
 
 export const NotificationEdition = ({
   notification,
+  onClose,
+  refetch,
 }: NotificationEditionProps) => {
   return (
     <div className={styles.container}>
@@ -19,12 +23,24 @@ export const NotificationEdition = ({
           {
             key: "notification",
             label: "Notificação",
-            content: <NotificationEditionArea notification={notification} />,
+            content: (
+              <NotificationEditionArea
+                notification={notification}
+                onClose={onClose}
+                refetch={refetch}
+              />
+            ),
           },
           {
             key: "person",
             label: "Notificado",
-            content: <PersonEditionArea notification={notification} />,
+            content: (
+              <PersonEditionArea
+                notification={notification}
+                onClose={onClose}
+                refetch={refetch}
+              />
+            ),
           },
         ]}
       />

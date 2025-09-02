@@ -2,11 +2,11 @@ import { useAuthStore } from "@/stores/auth/auth.store";
 import styles from "./NotificationDetailsActions.module.scss";
 import { CheckCircle2, Undo2, Send, CircleX } from "lucide-react";
 import type { Notification } from "@/components/tables/notifications-table/NotificationsTable";
-import { Button } from "../Button/Button";
+import { Button } from "../../Button/Button";
 import { useApiMutation } from "@/api/dispatchs/hooks";
 import { api } from "@/api/axios";
-import { Loader } from "../loader/Loader";
-import { AlertPopup } from "../popups/alert-popup/AlertPopup";
+import { Loader } from "../../loader/Loader";
+import { AlertPopup } from "../../popups/alert-popup/AlertPopup";
 import { useState } from "react";
 
 interface NotificationDetailsActionsProps {
