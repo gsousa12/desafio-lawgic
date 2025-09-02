@@ -22,9 +22,13 @@ export type Notification = {
 
 type NotificationsTableProps = {
   data: Notification[];
+  refetch: () => void;
 };
 
-export const NotificationsTable = ({ data }: NotificationsTableProps) => {
+export const NotificationsTable = ({
+  data,
+  refetch,
+}: NotificationsTableProps) => {
   const [openDetailsPopup, setOpenDetailsPopup] = useState<boolean>(false);
   const [notificationInFocus, setNotificationInFocus] = useState<Notification>(
     data[0]
@@ -134,6 +138,7 @@ export const NotificationsTable = ({ data }: NotificationsTableProps) => {
         openDetailsPopup={openDetailsPopup}
         notificationInFocus={notificationInFocus}
         setOpenDetailsPopup={setOpenDetailsPopup}
+        refetch={refetch}
       />
     </div>
   );
