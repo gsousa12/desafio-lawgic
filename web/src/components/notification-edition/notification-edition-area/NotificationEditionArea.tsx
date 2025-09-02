@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toLocalInput } from "@/common/utils/convert";
+import { api } from "@/api/axios";
 
 interface NotificationEditionAreaProps {
   notification: Notification;
@@ -57,19 +58,10 @@ export const NotificationEditionArea = ({
 
   const phTitle = notification?.title ?? "";
   const phDescription = notification?.description ?? "";
-  console.log(notification?.hearingDate);
   const phHearing = toLocalInput(notification?.hearingDate);
 
-  const onSubmit = (_data: NotificationEditForm) => {
-    // Função vazia por enquanto
-    // Exemplo de normalização quando integrar:
-    // const payload = {
-    //   ...(data.title && data.title !== "" ? { title: data.title } : {}),
-    //   ...(data.description && data.description !== "" ? { description: data.description } : {}),
-    //   ...(data.hearingDate && data.hearingDate !== ""
-    //     ? { hearingDate: new Date(data.hearingDate).toISOString() }
-    //     : {}),
-    // };
+  const onSubmit = (data: NotificationEditForm) => {
+    // handleSubmitData(data);
   };
 
   return (
