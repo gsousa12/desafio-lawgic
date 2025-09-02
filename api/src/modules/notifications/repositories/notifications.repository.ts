@@ -107,8 +107,9 @@ export class NotificationsRepository
     }
 
     if (filters.userRole === UserRole.Reviewer) {
-      // whereClause.reviewerId = filters.userId;
-      whereClause.status = NotificationStatus.Validation;
+      whereClause.status = {
+        in: [NotificationStatus.Validation, NotificationStatus.Completed],
+      };
     }
 
     const [totalCount, notifications] = await this.db.$transaction([

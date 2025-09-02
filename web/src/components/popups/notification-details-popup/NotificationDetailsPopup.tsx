@@ -20,8 +20,8 @@ export const NotificationDetailsPopup = ({
       onClose={() => setOpenDetailsPopup(false)}
       title="Detalhes da Notificação"
     >
+      <NotificationDetailsActions notification={notificationInFocus} />
       <NotificationDetails notification={notificationInFocus} />
-      <NotificationDetailsActions />
     </BasePopup>
   );
 };

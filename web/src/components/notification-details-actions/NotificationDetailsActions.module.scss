@@ -1,0 +1,52 @@
+@use "sass:color";
+
+$primary-color: #6366f1;
+$primary-font: #d4d4d8;
+$primary-background: #0f1115;
+
+$secondary-color: #3730a3;
+$secondary-font: #6f6f6f;
+$secondary-background: #141821;
+
+.actionsBar {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: $secondary-background;
+  color: $primary-font;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.btn:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.primary {
+  background: $primary-color;
+  border-color: $primary-color;
+  color: #ffffff;
+}
+
+.primary:hover {
+  background: color.mix($primary-color, #000, 85%);
+  border-color: color.mix($primary-color, #000, 85%);
+}
