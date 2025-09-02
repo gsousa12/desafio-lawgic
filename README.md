@@ -50,6 +50,10 @@ senha: 12345678
 
 02 - A API tem um interceptos que adiciona um delay aleatório a cada requisição. Fiz isso para exibir melhor os estados de loading.Você pode remover comentando a linha : app.useGlobalInterceptors(new RandomDelayInterceptor()) na main.ts da api.
 
+03 - Os teste unitários (endpoint create notification) são executados durando o build da aplicação. Caso queira rodar localmente :
+cd /api -> pnpm test:unit
+
+
 # Fluxo da aplicação
 
 - A aplicação possui duas entidades principais:
@@ -213,5 +217,6 @@ React com TypeScript e SASS modules, seguindo uma arquitetura componentizada e b
 - Vite como build tool para desenvolvimento ágil
 
 A arquitetura prioriza separation of concerns, testabilidade e manutenibilidade, seguindo boas práticas de desenvolvimento moderno.
-Os princípios forão implementados na medida do possível dentro do que eu me propus a fazer e o tempo que tinha disponível.
+Os princípios foram implementados na medida do possível dentro do que eu me propus a fazer e o tempo que tinha disponível.
+
 
