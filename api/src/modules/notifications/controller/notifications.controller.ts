@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -18,6 +19,8 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
 import { NotificationEntity } from 'src/common/types/entities';
 import { ReviewNotificationRequestDTO } from '../dtos/request/review.dto';
+import { EditNotificationRequestDto } from '../dtos/request/edit-notification.dto';
+import { EditNotifiedRequestPersonDto } from '../dtos/request/edit-person.dto';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -75,5 +78,25 @@ export class NotificationsController {
     @User() user: JwtPayload,
   ): Promise<any> {
     return await this.notificationsService.review(request, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('/notification')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseMessage('Notificação editada com sucesso')
+  async editNotification(
+    @Body() request: EditNotificationRequestDto,
+  ): Promise<void> {
+    await this.notificationsService.editNotification(request);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('/person')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseMessage('Pessoa notificada editada com sucesso')
+  async editNotifiedPerson(
+    @Body() request: EditNotifiedRequestPersonDto,
+  ): Promise<void> {
+    return this.notificationsService.editNotifiedPerson(request);
   }
 }

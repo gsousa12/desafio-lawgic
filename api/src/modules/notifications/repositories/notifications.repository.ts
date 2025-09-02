@@ -12,6 +12,8 @@ import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
 import { NotifiedPersonEntity } from 'src/common/types/entities/person.entity';
 import { JwtPayload, Meta } from 'src/common/types/api/api.types';
 import { ReviewNotificationRequestDTO } from '../dtos/request/review.dto';
+import { EditNotificationRequestDto } from '../dtos/request/edit-notification.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class NotificationsRepository
@@ -175,5 +177,25 @@ export class NotificationsRepository
         },
       });
     }
+  }
+
+  async updateById(
+    id: string,
+    data: Prisma.NotificationUpdateInput,
+  ): Promise<void> {
+    await this.db.notification.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async updateByNotificationId(
+    notificationId: string,
+    data: Partial<EditNotificationRequestDto>,
+  ): Promise<void> {
+    await this.db.notifiedPerson.update({
+      where: { notificationId },
+      data,
+    });
   }
 }

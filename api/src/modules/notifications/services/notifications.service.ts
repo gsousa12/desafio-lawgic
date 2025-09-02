@@ -1,14 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { INotificationsServiceInterface } from './interfaces/notifications-service.interface';
 import { NOTIFICATIONS_REPOSITORY } from 'src/common/tokens/injection.tokens';
 import { NotificationsRepository } from '../repositories/notifications.repository';
 import { CreateNotificationRequestDTO } from '../dtos/request/create.dto';
 import { ApiException } from 'src/common/exceptions/api.exection';
 import { CreateNotifiedPersonRequestDTO } from '../dtos/request/person.dto';
-import { NotificationEntity } from 'src/common/types/entities';
 import { JwtPayload, Meta } from 'src/common/types/api/api.types';
 import { ReviewNotificationRequestDTO } from '../dtos/request/review.dto';
-import { NotificationStatus } from 'src/common/utils/enums';
+import { EditNotificationRequestDto } from '../dtos/request/edit-notification.dto';
+import { EditNotifiedRequestPersonDto } from '../dtos/request/edit-person.dto';
 
 @Injectable()
 export class NotificationsService implements INotificationsServiceInterface {
@@ -83,5 +83,68 @@ export class NotificationsService implements INotificationsServiceInterface {
     }
 
     await this.notificationsRepository.review(request, user);
+  }
+
+  async editNotification(request: EditNotificationRequestDto): Promise<void> {
+    const current = await this.notificationsRepository.getById(
+      request.notificationId,
+    );
+    if (!current) {
+      throw new ApiException(
+        'Não existe uma notificação cadastrada com esse id',
+        404,
+      );
+    }
+
+    const data: Partial<EditNotificationRequestDto> = {};
+    if (request.title !== undefined) data.title = request.title.trim();
+    if (request.description !== undefined)
+      data.description = request.description.trim();
+    if (request.hearingDate !== undefined)
+      data.hearingDate = request.hearingDate;
+
+    if (Object.keys(data).length === 0) {
+      throw new ApiException('Nenhum campo para atualizar foi fornecido.', 400);
+    }
+
+    return this.notificationsRepository.updateById(
+      request.notificationId,
+      data,
+    );
+  }
+
+  async editNotifiedPerson(
+    request: EditNotifiedRequestPersonDto,
+  ): Promise<void> {
+    const current =
+      await this.notificationsRepository.getPersonByNotificationId(
+        request.notificationId,
+      );
+    if (!current) {
+      throw new ApiException(
+        'Notificado não encontrado para esta notificação.',
+        404,
+      );
+    }
+
+    const data: Partial<EditNotifiedRequestPersonDto> = {};
+    if (request.name !== undefined) data.name = request.name.trim();
+    if (request.email !== undefined) data.email = request.email.trim();
+    if (request.phone !== undefined) data.phone = request.phone.trim();
+    if (request.cep !== undefined) data.cep = request.cep.trim();
+    if (request.state !== undefined) data.state = request.state.trim();
+    if (request.city !== undefined) data.city = request.city.trim();
+    if (request.neighborhood !== undefined)
+      data.neighborhood = request.neighborhood.trim();
+    if (request.street !== undefined) data.street = request.street.trim();
+
+    if (Object.keys(data).length === 0) {
+      throw new ApiException('Nenhum campo para atualizar foi fornecido.', 400);
+    }
+
+    return this.notificationsRepository.updateByNotificationId(
+      request.notificationId,
+      data,
+    );
   }
 }
