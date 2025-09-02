@@ -81,12 +81,6 @@ export class NotificationsService implements INotificationsServiceInterface {
         404,
       );
     }
-    if (notification.status !== NotificationStatus.Validation) {
-      throw new ApiException(
-        "A notificação só pode ser revisada se estiver com o status 'Em validação'",
-        400,
-      );
-    }
 
     await this.notificationsRepository.review(request, user);
   }

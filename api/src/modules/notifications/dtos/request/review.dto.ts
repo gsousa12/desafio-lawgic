@@ -8,6 +8,8 @@ export class ReviewNotificationRequestDTO {
   notificationId: string;
 
   @IsString({ message: validationMessages.isString })
-  @IsEnum(['back', 'approve'], { message: validationMessages.isEnum })
+  @IsEnum(['back', 'approve', 'validate'], {
+    message: validationMessages.isEnum,
+  })
   action: string;
 }

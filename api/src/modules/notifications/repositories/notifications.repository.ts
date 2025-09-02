@@ -142,7 +142,7 @@ export class NotificationsRepository
     request: ReviewNotificationRequestDTO,
     user: JwtPayload,
   ): Promise<void> {
-    if (request.action === NotificatioReviewAction.Approve) {
+    if (request.action === 'approve') {
       await this.db.notification.update({
         data: {
           status: NotificationStatus.Completed,
@@ -153,11 +153,22 @@ export class NotificationsRepository
         },
       });
     }
-    if (request.action === NotificatioReviewAction.Back) {
+    if (request.action === 'back') {
       await this.db.notification.update({
         data: {
           status: NotificationStatus.InProgress,
           reviewerId: user.userId,
+        },
+        where: {
+          id: request.notificationId,
+        },
+      });
+    }
+
+    if (request.action === 'validate') {
+      await this.db.notification.update({
+        data: {
+          status: NotificationStatus.Validation,
         },
         where: {
           id: request.notificationId,
