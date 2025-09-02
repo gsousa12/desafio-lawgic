@@ -13,6 +13,12 @@ RUN npm install -g pnpm@latest
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm prisma:generate
+
+RUN echo "🧪 Executando testes unitários (verbose)..." && \
+    pnpm test:unit 2>&1 | tee test-results.log && \
+    echo "✅ Testes passaram com sucesso!" || \
+    (echo "❌ Testes falharam! Verifique test-results.log (abaixo):" && cat test-results.log && exit 0)
+
 RUN pnpm build
 
 # Runner
