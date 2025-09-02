@@ -25,7 +25,7 @@ async function bootstrap() {
     }),
   );
   app.setGlobalPrefix('api');
-  // app.useGlobalInterceptors(new RandomDelayInterceptor());
+  app.useGlobalInterceptors(new RandomDelayInterceptor());
   app.useGlobalInterceptors(new ApiResponseInterceptor(reflector));
   app.useGlobalFilters(new ApiExceptionFilter());
   app.use(cookieParser());
